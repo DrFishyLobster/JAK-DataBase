@@ -2,6 +2,8 @@
 
 1) Structure
 	Bytes		Content
+
+	8			IsCorrectFormatID -> 18263452859329828488
 	1			Number Of Columns
 	1			Type ID         }
 	1+			Column Name     } REPEAT FOR AS MANY COLUMNS
@@ -15,9 +17,14 @@
 2) Type IDs:
 
 	0 - Text
-	1 - Integer
-	2 - Float
-	3 - Double
-	4 - Byte
-	5 - Date
-	6 - Money
+	1 - Byte
+	2 - Signed Byte
+	3 - Unsigned Short
+	4 - Short
+	5 - Unsigned Integer
+	6 - Integer
+	7 - Unsigned Long
+	8 - Long
+	9 - Float
+	10 - Double
+	11 - Date

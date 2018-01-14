@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C35BCBD5-730F-4FD8-8BC5-1BF7E2B5A6A9}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Database</RootNamespace>
-    <AssemblyName>Database</AssemblyName>
+    <ProjectGuid>{87C71052-DC5F-4782-9EA6-D11BE0979712}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Tester</RootNamespace>
+    <AssemblyName>Tester</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -31,9 +31,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,15 +42,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Database Classes.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="HeaderProtocol.txt" />
-    <Content Include="Important Information.txt" />
+    <ProjectReference Include="..\Databaes\Database.csproj">
+      <Project>{c35bcbd5-730f-4fd8-8bc5-1bf7e2b5a6a9}</Project>
+      <Name>Database</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

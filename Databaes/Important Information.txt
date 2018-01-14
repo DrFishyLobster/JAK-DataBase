@@ -1,2 +1,18 @@
 ﻿This file includes important imformation:
 
+1) Encoding
+
+	Records are stored in the columns as bytes, with type info. Thus, bytes can be interpreted on the basis of
+	their type and a list of columns can be cycled and treated the same.
+
+	Strings are stored as bytes of UTF-8. They all end in a ENDOFTEXT byte (00000011)
+
+2) Binary File Main Data Protocol
+
+	Each Entry is stored as a series of its record parts in columns. 
+	i.e.:
+
+	if entries 1, 2 and 3 had column properties of a,b and c, it would be stored as such:
+
+
+		1a 1b 1c 2a 2b 2c 3a 3b 3c
