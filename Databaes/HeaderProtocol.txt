@@ -1,0 +1,23 @@
+﻿This file is has information regarding to the protocol and interpretation of the header of the binary file:
+
+1) Structure
+	Bytes		Content
+	1			Number Of Columns
+	1			Type ID         }
+	1+			Column Name     } REPEAT FOR AS MANY COLUMNS
+	1			Day of Last Edit
+	1			Month of Last Edit
+	1			Year of Last Edit (Add to 2000)
+	1			Hour of Last Edit
+	1			Minute of Last Edit
+	1+			FileName
+
+2) Type IDs:
+
+	0 - Text
+	1 - Integer
+	2 - Float
+	3 - Double
+	4 - Byte
+	5 - Date
+	6 - Money
