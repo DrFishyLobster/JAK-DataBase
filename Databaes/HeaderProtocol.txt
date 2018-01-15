@@ -7,16 +7,12 @@
 	1			Number Of Columns
 	1			Type ID         }
 	1+			Column Name     } REPEAT FOR AS MANY COLUMNS
-	1			Day of Last Edit
-	1			Month of Last Edit
-	1			Year of Last Edit (Add to 2000)
-	1			Hour of Last Edit
-	1			Minute of Last Edit
+	7			Date of Last Save
 	1+			FileName
 
 2) Type IDs:
 
-	0 - Text
+	0 - String
 	1 - Byte
 	2 - Signed Byte
 	3 - Unsigned Short
@@ -27,4 +23,4 @@
 	8 - Long
 	9 - Float
 	10 - Double
-	//11 - Date
+	11 - Date

@@ -39,6 +39,7 @@ namespace DatabaseProject
     public class Database
     {
         public List<Column> Data = new List<Column>();
+        public byte[] DateOfLastSave;
         public string FilePath = "";
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
@@ -60,13 +61,15 @@ namespace DatabaseProject
                 if (binaryReader.ReadUInt64() != FormatID) throw new NotValidFormatException("Not Correct Format ID");
             }
             Database database = new Database();
-            for (int col = 0; col < binaryReader.ReadByte(); col++)
+            byte CCount = binaryReader.ReadByte();
+            for (int col = 0; col < CCount; col++)
             {
                 Column column = new Column();
                 column.type = Converter.ByteToType(binaryReader.ReadByte());
                 column.Name = Converter.ByteToString(binaryReader.ReadNextRecord(typeof(String)), typeof(String));
                 database.Data.Add(column);
             }
+            database.DateOfLastSave = binaryReader.ReadNextRecord(typeof(DateTime));
             //Reads in and creates the Empty Columns
             while (!binaryReader.EOF())
             {
@@ -82,6 +85,7 @@ namespace DatabaseProject
         }
         public void SaveDatabase()
         {
+            DateOfLastSave = Converter.StringToByte((Convert.ToString(DateTime.Now)), typeof(DateTime));
             BinaryWriter binaryWriter = new BinaryWriter(new FileStream(FilePath, FileMode.Truncate));
             binaryWriter.Write(FormatID);
             binaryWriter.Write((byte)Data.Count);
@@ -91,6 +95,7 @@ namespace DatabaseProject
                 binaryWriter.Write(Converter.StringToByte(col.Name, typeof(string)));
 
             }
+            binaryWriter.Write(DateOfLastSave);
             if (Data.Count != 0)
             {
                 for (int record = 0; record < Data[0].Data.Count; record++)
@@ -178,6 +183,10 @@ namespace DatabaseProject
             {
                 return binaryReader.ReadBytes(4);
             }
+            else if (type.Equals(typeof(DateTime)))
+            {
+                return binaryReader.ReadBytes(7);
+            }
             else if (type.Equals(typeof(Int64)) || type.Equals(typeof(UInt64)) || type.Equals(typeof(Double)))
             {
                 return binaryReader.ReadBytes(8);
@@ -246,6 +255,11 @@ namespace DatabaseProject
             {
                 return BitConverter.ToDouble(B, 0).ToString();
             }
+            else if (type.Equals(typeof(DateTime)))
+            {
+                return string.Format("{0}/{1}/{2} {3}:{4}:{5}", B[0], B[1], BitConverter.ToUInt16(new byte[] { B[2], B[3] }, 0), B[4], B[5], B[6]);
+
+            }
             else
             {
                 throw new NotImplementedException();
@@ -297,6 +311,20 @@ namespace DatabaseProject
             else if (type.Equals(typeof(Double)))
             {
                 return BitConverter.GetBytes(Double.Parse(s));
+            }
+            else if (type.Equals(typeof(DateTime)))
+            {
+                DateTime tester = DateTime.Parse(s);
+                byte[] output = new byte[7]{
+                    (byte)(tester.Day),
+                    (byte)(tester.Month),
+                    BitConverter.GetBytes((short)(tester.Year))[0],
+                    BitConverter.GetBytes((short)(tester.Year))[1],
+                    (byte)(tester.Hour),
+                (byte)(tester.Minute),
+                (byte)(tester.Second)
+                };
+                return output;
             }
             else
             {
