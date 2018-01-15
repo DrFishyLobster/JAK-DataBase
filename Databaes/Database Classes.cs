@@ -39,6 +39,7 @@ namespace DatabaseProject
     public class Database
     {
         public List<Column> Data = new List<Column>();
+        public byte[] DateOfLastSave;
         public string FilePath = "";
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
@@ -60,13 +61,15 @@ namespace DatabaseProject
                 if (binaryReader.ReadUInt64() != FormatID) throw new NotValidFormatException("Not Correct Format ID");
             }
             Database database = new Database();
-            for (int col = 0; col < binaryReader.ReadByte(); col++)
+            byte CCount = binaryReader.ReadByte();
+            for (int col = 0; col < CCount; col++)
             {
                 Column column = new Column();
                 column.type = Converter.ByteToType(binaryReader.ReadByte());
-                column.Name = Converter.ByteToString(binaryReader.ReadNextRecord(column.type));
+                column.Name = Converter.ByteToString(binaryReader.ReadNextRecord(typeof(String)), typeof(String));
                 database.Data.Add(column);
             }
+            database.DateOfLastSave = binaryReader.ReadNextRecord(typeof(DateTime));
             //Reads in and creates the Empty Columns
             while (!binaryReader.EOF())
             {
@@ -82,15 +85,17 @@ namespace DatabaseProject
         }
         public void SaveDatabase()
         {
+            DateOfLastSave = Converter.StringToByte((Convert.ToString(DateTime.Now)), typeof(DateTime));
             BinaryWriter binaryWriter = new BinaryWriter(new FileStream(FilePath, FileMode.Truncate));
             binaryWriter.Write(FormatID);
             binaryWriter.Write((byte)Data.Count);
             foreach (var col in Data)
             {
                 binaryWriter.Write(Converter.TypeToByte(col.type));
-                binaryWriter.Write(Converter.StringToByte(col.Name));
+                binaryWriter.Write(Converter.StringToByte(col.Name, typeof(string)));
 
             }
+            binaryWriter.Write(DateOfLastSave);
             if (Data.Count != 0)
             {
                 for (int record = 0; record < Data[0].Data.Count; record++)
@@ -116,6 +121,7 @@ namespace DatabaseProject
         }
 
     }
+
 
 
     #endregion
@@ -165,17 +171,32 @@ namespace DatabaseProject
                     }
                 }
             }
-
+            else if (type.Equals(typeof(byte)) || type.Equals(typeof(sbyte)))
+            {
+                return binaryReader.ReadBytes(1);
+            }
+            else if (type.Equals(typeof(Int16)) || type.Equals(typeof(UInt16)))
+            {
+                return binaryReader.ReadBytes(2);
+            }
+            else if (type.Equals(typeof(Int32)) || type.Equals(typeof(UInt32)) || type.Equals(typeof(Single)))
+            {
+                return binaryReader.ReadBytes(4);
+            }
+            else if (type.Equals(typeof(DateTime)))
+            {
+                return binaryReader.ReadBytes(7);
+            }
+            else if (type.Equals(typeof(Int64)) || type.Equals(typeof(UInt64)) || type.Equals(typeof(Double)))
+            {
+                return binaryReader.ReadBytes(8);
+            }
             else
             {
                 throw new NotImplementedException();
             }
         }
-        public static byte[] StringToByte(string s)
-        {
-            UTF8Encoding encoder = new UTF8Encoding();
-            return encoder.GetBytes(s).Add(3);
-        }
+
 
         public static Type ByteToType(byte B)
         {
@@ -186,11 +207,129 @@ namespace DatabaseProject
         {
             return (byte)Array.IndexOf<Type>(types, T);
         }
-        public static string ByteToString(byte[] B)
-        {
-            UTF8Encoding encoder = new UTF8Encoding();
-            return encoder.GetString(B, 0, B.Length - 1);
 
+        public static string ByteToString(byte[] B, Type type) //ADD MORE DATATYPES
+        {
+            if (type.Equals(typeof(string)))
+            {
+                UTF8Encoding encoder = new UTF8Encoding();
+                return encoder.GetString(B, 0, B.Length - 1);
+            }
+            else if (type.Equals(typeof(byte)))
+            {
+                return B[0].ToString();
+            }
+            else if (type.Equals(typeof(sbyte)))
+            {
+                return unchecked(((sbyte)B[0])).ToString();
+            }
+            else if (type.Equals(typeof(Int16)))
+            {
+                return BitConverter.ToInt16(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(UInt16)))
+            {
+                return BitConverter.ToUInt16(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(Int32)))
+            {
+                return BitConverter.ToInt32(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(UInt32)))
+            {
+                return BitConverter.ToUInt32(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(Int64)))
+            {
+                return BitConverter.ToInt64(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(UInt64)))
+            {
+                return BitConverter.ToUInt64(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(Single)))
+            {
+                return BitConverter.ToSingle(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(Double)))
+            {
+                return BitConverter.ToDouble(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(DateTime)))
+            {
+                return string.Format("{0}/{1}/{2} {3}:{4}:{5}", B[0], B[1], BitConverter.ToUInt16(new byte[] { B[2], B[3] }, 0), B[4], B[5], B[6]);
+
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public static byte[] StringToByte(string s, Type type) //ADD MORE DATATYPES
+        {
+            if (type.Equals(typeof(string)))
+            {
+                UTF8Encoding encoder = new UTF8Encoding();
+                return encoder.GetBytes(s).Add(3);
+            }
+            else if (type.Equals(typeof(byte)))
+            {
+                return BitConverter.GetBytes(byte.Parse(s));
+            }
+            else if (type.Equals(typeof(sbyte)))
+            {
+                return BitConverter.GetBytes(sbyte.Parse(s));
+            }
+            else if (type.Equals(typeof(Int16)))
+            {
+                return BitConverter.GetBytes(Int16.Parse(s));
+            }
+            else if (type.Equals(typeof(UInt16)))
+            {
+                return BitConverter.GetBytes(UInt16.Parse(s));
+            }
+            else if (type.Equals(typeof(Int32)))
+            {
+                return BitConverter.GetBytes(Int32.Parse(s));
+            }
+            else if (type.Equals(typeof(UInt32)))
+            {
+                return BitConverter.GetBytes(UInt32.Parse(s));
+            }
+            else if (type.Equals(typeof(Int64)))
+            {
+                return BitConverter.GetBytes(Int64.Parse(s));
+            }
+            else if (type.Equals(typeof(UInt64)))
+            {
+                return BitConverter.GetBytes(UInt64.Parse(s));
+            }
+            else if (type.Equals(typeof(Single)))
+            {
+                return BitConverter.GetBytes(Single.Parse(s));
+            }
+            else if (type.Equals(typeof(Double)))
+            {
+                return BitConverter.GetBytes(Double.Parse(s));
+            }
+            else if (type.Equals(typeof(DateTime)))
+            {
+                DateTime tester = DateTime.Parse(s);
+                byte[] output = new byte[7]{
+                    (byte)(tester.Day),
+                    (byte)(tester.Month),
+                    BitConverter.GetBytes((short)(tester.Year))[0],
+                    BitConverter.GetBytes((short)(tester.Year))[1],
+                    (byte)(tester.Hour),
+                (byte)(tester.Minute),
+                (byte)(tester.Second)
+                };
+                return output;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 
