@@ -40,7 +40,8 @@ namespace DatabaseProject
     {
         public List<Column> Data = new List<Column>();
         public byte[] DateOfLastSave;
-        public string FilePath = "";
+        public string FilePath = @"C:\Users\User\Desktop\Delete Me.bin";
+        public string FileName= "TestFile";
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
 
@@ -70,6 +71,7 @@ namespace DatabaseProject
                 database.Data.Add(column);
             }
             database.DateOfLastSave = binaryReader.ReadNextRecord(typeof(DateTime));
+            database.FileName = Converter.ByteToString(binaryReader.ReadNextRecord(typeof(string)), typeof(string));
             //Reads in and creates the Empty Columns
             while (!binaryReader.EOF())
             {
@@ -96,6 +98,7 @@ namespace DatabaseProject
 
             }
             binaryWriter.Write(DateOfLastSave);
+            binaryWriter.Write(Converter.StringToByte(FileName, typeof(string)));
             if (Data.Count != 0)
             {
                 for (int record = 0; record < Data[0].Data.Count; record++)
@@ -121,8 +124,6 @@ namespace DatabaseProject
         }
 
     }
-
-
 
     #endregion
 
@@ -264,6 +265,19 @@ namespace DatabaseProject
             {
                 throw new NotImplementedException();
             }
+        }
+        public static bool TryParseToByte(string s, Type type, out byte[] B)
+        {
+            try
+            {
+                B = StringToByte(s, type);
+            }
+            catch (Exception)
+            {
+                B = null;
+                return false;
+            }
+            return true;
         }
         public static byte[] StringToByte(string s, Type type) //ADD MORE DATATYPES
         {
