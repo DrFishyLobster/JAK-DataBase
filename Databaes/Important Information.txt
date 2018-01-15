@@ -9,7 +9,7 @@
 
 2) Binary File Main Data Protocol
 
-	Each Entry is stored as a series of its record parts in columns. 
+	Each Entry is stored as a series of its record part's in columns. 
 	i.e.:
 
 	if entries 1, 2 and 3 had column properties of a,b and c, it would be stored as such:

@@ -64,7 +64,7 @@ namespace DatabaseProject
             {
                 Column column = new Column();
                 column.type = Converter.ByteToType(binaryReader.ReadByte());
-                column.Name = Converter.ByteToString(binaryReader.ReadNextRecord(column.type));
+                column.Name = Converter.ByteToString(binaryReader.ReadNextRecord(typeof(String)), typeof(String));
                 database.Data.Add(column);
             }
             //Reads in and creates the Empty Columns
@@ -88,7 +88,7 @@ namespace DatabaseProject
             foreach (var col in Data)
             {
                 binaryWriter.Write(Converter.TypeToByte(col.type));
-                binaryWriter.Write(Converter.StringToByte(col.Name));
+                binaryWriter.Write(Converter.StringToByte(col.Name, typeof(string)));
 
             }
             if (Data.Count != 0)
@@ -116,6 +116,7 @@ namespace DatabaseProject
         }
 
     }
+
 
 
     #endregion
@@ -165,17 +166,28 @@ namespace DatabaseProject
                     }
                 }
             }
-
+            else if (type.Equals(typeof(byte)) || type.Equals(typeof(sbyte)))
+            {
+                return binaryReader.ReadBytes(1);
+            }
+            else if (type.Equals(typeof(Int16)) || type.Equals(typeof(UInt16)))
+            {
+                return binaryReader.ReadBytes(2);
+            }
+            else if (type.Equals(typeof(Int32)) || type.Equals(typeof(UInt32)) || type.Equals(typeof(Single)))
+            {
+                return binaryReader.ReadBytes(4);
+            }
+            else if (type.Equals(typeof(Int64)) || type.Equals(typeof(UInt64)) || type.Equals(typeof(Double)))
+            {
+                return binaryReader.ReadBytes(8);
+            }
             else
             {
                 throw new NotImplementedException();
             }
         }
-        public static byte[] StringToByte(string s)
-        {
-            UTF8Encoding encoder = new UTF8Encoding();
-            return encoder.GetBytes(s).Add(3);
-        }
+
 
         public static Type ByteToType(byte B)
         {
@@ -186,11 +198,110 @@ namespace DatabaseProject
         {
             return (byte)Array.IndexOf<Type>(types, T);
         }
-        public static string ByteToString(byte[] B)
-        {
-            UTF8Encoding encoder = new UTF8Encoding();
-            return encoder.GetString(B, 0, B.Length - 1);
 
+        public static string ByteToString(byte[] B, Type type) //ADD MORE DATATYPES
+        {
+            if (type.Equals(typeof(string)))
+            {
+                UTF8Encoding encoder = new UTF8Encoding();
+                return encoder.GetString(B, 0, B.Length - 1);
+            }
+            else if (type.Equals(typeof(byte)))
+            {
+                return B[0].ToString();
+            }
+            else if (type.Equals(typeof(sbyte)))
+            {
+                return unchecked(((sbyte)B[0])).ToString();
+            }
+            else if (type.Equals(typeof(Int16)))
+            {
+                return BitConverter.ToInt16(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(UInt16)))
+            {
+                return BitConverter.ToUInt16(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(Int32)))
+            {
+                return BitConverter.ToInt32(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(UInt32)))
+            {
+                return BitConverter.ToUInt32(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(Int64)))
+            {
+                return BitConverter.ToInt64(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(UInt64)))
+            {
+                return BitConverter.ToUInt64(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(Single)))
+            {
+                return BitConverter.ToSingle(B, 0).ToString();
+            }
+            else if (type.Equals(typeof(Double)))
+            {
+                return BitConverter.ToDouble(B, 0).ToString();
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public static byte[] StringToByte(string s, Type type) //ADD MORE DATATYPES
+        {
+            if (type.Equals(typeof(string)))
+            {
+                UTF8Encoding encoder = new UTF8Encoding();
+                return encoder.GetBytes(s).Add(3);
+            }
+            else if (type.Equals(typeof(byte)))
+            {
+                return BitConverter.GetBytes(byte.Parse(s));
+            }
+            else if (type.Equals(typeof(sbyte)))
+            {
+                return BitConverter.GetBytes(sbyte.Parse(s));
+            }
+            else if (type.Equals(typeof(Int16)))
+            {
+                return BitConverter.GetBytes(Int16.Parse(s));
+            }
+            else if (type.Equals(typeof(UInt16)))
+            {
+                return BitConverter.GetBytes(UInt16.Parse(s));
+            }
+            else if (type.Equals(typeof(Int32)))
+            {
+                return BitConverter.GetBytes(Int32.Parse(s));
+            }
+            else if (type.Equals(typeof(UInt32)))
+            {
+                return BitConverter.GetBytes(UInt32.Parse(s));
+            }
+            else if (type.Equals(typeof(Int64)))
+            {
+                return BitConverter.GetBytes(Int64.Parse(s));
+            }
+            else if (type.Equals(typeof(UInt64)))
+            {
+                return BitConverter.GetBytes(UInt64.Parse(s));
+            }
+            else if (type.Equals(typeof(Single)))
+            {
+                return BitConverter.GetBytes(Single.Parse(s));
+            }
+            else if (type.Equals(typeof(Double)))
+            {
+                return BitConverter.GetBytes(Double.Parse(s));
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 
