@@ -265,6 +265,19 @@ namespace DatabaseProject
                 throw new NotImplementedException();
             }
         }
+        public static bool TryParseToByte(string s, Type type, out byte[] B)
+        {
+            try
+            {
+                B = StringToByte(s, type);
+            }
+            catch (Exception)
+            {
+                B = null;
+                return false;
+            }
+            return true;
+        }
         public static byte[] StringToByte(string s, Type type) //ADD MORE DATATYPES
         {
             if (type.Equals(typeof(string)))
