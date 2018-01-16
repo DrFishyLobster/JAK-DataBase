@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{87C71052-DC5F-4782-9EA6-D11BE0979712}</ProjectGuid>
+    <ProjectGuid>{0624E2BC-9952-4C9B-B155-AB5F826A7D55}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Tester</RootNamespace>
     <AssemblyName>Tester</AssemblyName>
@@ -49,8 +49,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Databaes\Database.csproj">
-      <Project>{c35bcbd5-730f-4fd8-8bc5-1bf7e2b5a6a9}</Project>
+    <ProjectReference Include="..\Database\Database.csproj">
+      <Project>{ec295dac-e07d-409f-ab32-82f8fa422f2f}</Project>
       <Name>Database</Name>
     </ProjectReference>
   </ItemGroup>

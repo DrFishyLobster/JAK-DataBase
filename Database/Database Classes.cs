@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-namespace DatabaseProject
+namespace Databaser
 {
 
     #region Column and Record Constructs
