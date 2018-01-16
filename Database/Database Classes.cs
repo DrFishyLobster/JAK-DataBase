@@ -16,6 +16,61 @@ namespace DatabaseProject
             Data = d;
             type = t;
         }
+        public int CompareTo(Record other)
+        {
+            if (type.Equals(typeof(string)))
+            {
+                UTF8Encoding encoder = new UTF8Encoding();
+                return encoder.GetString(Data, 0, Data.Length - 1).CompareTo(encoder.GetString(other.Data, 0, Data.Length - 1));
+            }
+            else if (type.Equals(typeof(byte)))
+            {
+                return Data[0].CompareTo(other.Data[0]);
+            }
+            else if (type.Equals(typeof(sbyte)))
+            {
+                return unchecked(((sbyte)Data[0])).CompareTo(unchecked(((sbyte)other.Data[0])));
+            }
+            else if (type.Equals(typeof(Int16)))
+            {
+                return BitConverter.ToInt16(Data, 0).CompareTo(BitConverter.ToInt16(other.Data, 0));
+            }
+            else if (type.Equals(typeof(UInt16)))
+            {
+                return BitConverter.ToUInt16(Data, 0).CompareTo(BitConverter.ToUInt16(other.Data, 0));
+            }
+            else if (type.Equals(typeof(Int32)))
+            {
+                return BitConverter.ToInt32(Data, 0).CompareTo(BitConverter.ToInt32(other.Data, 0));
+            }
+            else if (type.Equals(typeof(UInt32)))
+            {
+                return BitConverter.ToUInt32(Data, 0).CompareTo(BitConverter.ToUInt32(other.Data, 0));
+            }
+            else if (type.Equals(typeof(Int64)))
+            {
+                return BitConverter.ToInt64(Data, 0).CompareTo(BitConverter.ToInt64(other.Data, 0));
+            }
+            else if (type.Equals(typeof(UInt64)))
+            {
+                return BitConverter.ToUInt64(Data, 0).CompareTo(BitConverter.ToUInt64(other.Data, 0));
+            }
+            else if (type.Equals(typeof(Single)))
+            {
+                return BitConverter.ToSingle(Data, 0).CompareTo(BitConverter.ToSingle(other.Data, 0));
+            }
+            else if (type.Equals(typeof(Double)))
+            {
+                return BitConverter.ToDouble(Data, 0).CompareTo(BitConverter.ToDouble(other.Data, 0));
+            }
+            else if (type.Equals(typeof(DateTime)))
+            {
+                return Convert.ToDateTime(string.Format("{0}/{1}/{2} {3}:{4}:{5}", Data[0], Data[1], BitConverter.ToUInt16(new byte[] { Data[2], Data[3] }, 0), Data[4], Data[5], Data[6]))
+                    .CompareTo(Convert.ToDateTime(string.Format("{0}/{1}/{2} {3}:{4}:{5}", other.Data[0], other.Data[1], BitConverter.ToUInt16(new byte[] { other.Data[2], other.Data[3] }, 0), other.Data[4], other.Data[5], other.Data[6])));
+
+            }
+            return 0;
+        }
     }
     public class Column
     {
@@ -31,17 +86,43 @@ namespace DatabaseProject
         {
 
         }
+        public List<int> GenerateSortPattern(SortStyle sortStyle) //Bubble Sort UNTESTED
+        {
+            List<int> output = new List<int>();
+            for (int num = 0; num < Data.Count; num++) output.Add(num);
+            bool switched = false;
+
+            for (int endpos = output.Count-1; endpos >= 1; endpos--)
+            {
+                for (int pos = 0; pos < endpos-1; pos++)
+                {
+                    int res = Data[output[pos]].CompareTo(Data[output[pos+1]]);
+                    if (sortStyle == SortStyle.Descending) res = -res;
+                    if (res >0)
+                    {
+                        int temp = output[pos];
+                        output[pos] = output[endpos];
+                        output[endpos] = temp;
+                        switched = true;
+                    }
+                }
+                if (!switched) break;
+            }
+            return output;
+        }
+
+
     }
     #endregion
 
     #region Database Constructs
-
+    public enum SortStyle { Ascending, Descending };
     public class Database
     {
         public List<Column> Data = new List<Column>();
         public byte[] DateOfLastSave;
         public string FilePath = @"C:\Users\User\Desktop\Delete Me.bin";
-        public string FileName= "TestFile";
+        public string FileName = "TestFile";
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
 
@@ -110,6 +191,18 @@ namespace DatabaseProject
                 }
             }
             binaryWriter.Close();
+        }
+        public void ApplyPattern(List<int> pattern)
+        {
+            for (int col = 0; col < Data.Count; col++)
+            {
+                List<Record> temp = new List<Record>();
+                foreach (var item in pattern)
+                {
+                    temp.Add(Data[col].Data[item]);
+                }
+                Data[col].Data = temp;
+            }
         }
 
         [Serializable]
