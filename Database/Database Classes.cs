@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 namespace Databaser
 {
 
@@ -20,6 +19,7 @@ namespace Databaser
         {
             TheDatabase = database;
         }
+
         public void View_EntireDatabase()
         {
             List<string> ColumnHeadings = sColumnHeadings();
@@ -42,7 +42,8 @@ namespace Databaser
             string HappyWithCreation = "";
             string iName;
             Type itype;
-            do {
+            do
+            {
                 Console.WriteLine("What would you like to name this field?");
                 iName = Console.ReadLine();
                 Console.WriteLine("Your new field can be a text field (txt), a number field (num), a positive number field (pnm), a date-time field (dtm)...\nPick one of the formats for your field by entering it’s unique shorthand mentioned in brackets above");
@@ -80,6 +81,7 @@ namespace Databaser
             Console.ReadKey();
             return;
         }
+
         string ShortformToFieldDescription(string shorthand)
         {
             switch (shorthand)
@@ -110,18 +112,18 @@ namespace Databaser
                     return typeof(error);
             }
         }
-        class error
+        class error//purpose?
         { }
         List<string> sRecord(int RecordNumber_startingat0)
         {
-            int RecordNumber = RecordNumber_startingat0;
+            int RecordNumber = RecordNumber_startingat0;//is this superfluous?
             List<string> ToReturn = new List<string>();
             for (int ColNum = 0; ColNum < TheDatabase.Data.Count; ColNum++)
             {
-                if (TheDatabase.Data[ColNum].Data.Count <= RecordNumber)//new column being created, so no data in the record of that column
+                if (TheDatabase[ColNum].Data.Count <= RecordNumber)//why not throw an exception? //new column being created, so no data in the record of that column
                     ToReturn.Add("");//Adding empty string so that indexing of ToReturn doesn’t get messed up
                 else
-                    ToReturn.Add(Converter.ByteToString(TheDatabase.Data[ColNum].Data[RecordNumber].Data, TheDatabase.Data[ColNum].type));
+                    ToReturn.Add(Converter.ByteToString(TheDatabase[ColNum][RecordNumber].Data, TheDatabase[ColNum].type));
             }
             return ToReturn;
         }

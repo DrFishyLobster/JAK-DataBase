@@ -1,0 +1,27 @@
+﻿17/01/2018 - Karan - StartOfDatabase Manager:
+	* I really like the yes or no verfication scheme
+	* You are now able to do TheDatabase[Colnum][Recnum] instead of TheDatabase.Data[Colnum].Data[Recnum];
+	* I think we will later write more for displaying database, with colour etc, but good enough building block
+	* I think do... while (HappyWithCreation != "yes" && HappyWithCreation != "no") should be just 
+	happywithCreation == "no";
+	* I really like having to fix all the entries that don't have the column information
+	* I'm not a fan of ShortformToFieldDescription and ShortformToType. There is the ability to access so much
+	other types so we shouldn't be restricted to just 4 or 5. What i was thinking was something like this:
+
+	There is already a list of available types so we could in theory display something like this:
+	0. Text
+	1. Byte
+	2. SByte
+	3. Short
+	...
+	11. DateTime
+
+	They then input a number 0-11, which we can then set itype to be ArrayOfTypes[Input];
+
+	What do you think? 
+	{
+	
+	
+	}
+
+-------------------------------------------------------------------------------------------------------	
