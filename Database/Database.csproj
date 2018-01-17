@@ -44,6 +44,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CommentsOnCommits.txt" />
     <Content Include="HeaderProtocol.txt" />
     <Content Include="Important Information.txt" />
   </ItemGroup>
