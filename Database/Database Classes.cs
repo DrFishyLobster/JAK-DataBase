@@ -5,6 +5,28 @@ using System.Text;
 namespace Database
 {
 
+    #region Database Manager
+    class DatabaseManager
+    {
+        Database TheDatabase;
+        public string LastSave
+        {
+            get
+            {
+                return Converter.ByteToString(TheDatabase.DateOfLastSave, typeof(DateTime));
+            }
+        }
+        public DatabaseManager(Database database)
+        {
+            TheDatabase = database;
+        }
+        public void View_EntireDatabase()
+        {
+            for (int i = 0; i < TheDatabase.)
+        }
+    }
+    #endregion
+
     #region Column and Record Constructs
 
     public class Record
