@@ -5,6 +5,138 @@ using System.Text;
 namespace Databaser
 {
 
+    #region Database Manager
+    public class DatabaseManager
+    {
+        Database TheDatabase;
+        public string LastSave
+        {
+            get
+            {
+                return Converter.ByteToString(TheDatabase.DateOfLastSave, typeof(DateTime));
+            }
+        }
+        public DatabaseManager(Database database)
+        {
+            TheDatabase = database;
+        }
+        public void View_EntireDatabase()
+        {
+            List<string> ColumnHeadings = sColumnHeadings();
+            for (int r = 0; r < ColumnHeadings.Count; r++)
+                Console.Write(ColumnHeadings[r] + "\t");
+            Console.Write("\n");
+            for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
+            {
+                //display current record
+                List<string> RecordElements = sRecord(RecordNum);
+                for (int i = 0; i < RecordElements.Count; i++)
+                {
+                    Console.Write(RecordElements[i] + "\t");
+                }
+                Console.Write("\n");
+            }
+        }
+        public void Create_Column()
+        {
+            string HappyWithCreation = "";
+            string iName;
+            Type itype;
+            do {
+                Console.WriteLine("What would you like to name this field?");
+                iName = Console.ReadLine();
+                Console.WriteLine("Your new field can be a text field (txt), a number field (num), a positive number field (pnm), a date-time field (dtm)...\nPick one of the formats for your field by entering it’s unique shorthand mentioned in brackets above");
+                string stype = Console.ReadLine();
+                itype = ShortformToType(stype);
+                Console.WriteLine("Are you sure you’d like to create a new " + ShortformToFieldDescription(stype) + " called " + iName + "? (yes/no)");
+                while ((HappyWithCreation = Console.ReadLine()) != "yes" && HappyWithCreation != "no")
+                {
+                    Console.WriteLine("Enter either ‘yes’ or ‘no’");
+                }
+            } while (HappyWithCreation != "yes" && HappyWithCreation != "no");
+            TheDatabase.Data.Add(new Column(iName, itype));
+            if (TheDatabase.Data.Count > 0)//Database has some columns
+            {
+                if (TheDatabase.Data[0].Data.Count > 0)//Database isn’t empty
+                {
+                    Console.Clear();
+                    Console.WriteLine("There are existing records in the database for which the new field must be filled out.\nPlease fill out the following information for the records already in the database:\n");
+                    List<string> ColHeadings = sColumnHeadings();   //Displaying column titles
+                    for (int t = 0; t < ColHeadings.Count; t++)     //
+                        Console.Write(ColHeadings[t] + "\t");       //column titles displayed
+                    Console.Write("\n");//next line
+                    List<Record> NewColsRecords = new List<Record>();
+                    for (int i = 0; i < TheDatabase.Data[0].Data.Count; i++)//for every record, display existent data, then ask for additional data to be added to the new column
+                    {
+                        List<string> CurrRecord = sRecord(i);
+                        for (int t = 0; t < CurrRecord.Count; t++)
+                            Console.Write(CurrRecord[t] + "\t");
+                        NewColsRecords.Add(new Record(Converter.StringToByte(Console.ReadLine(), itype), itype));
+                    } //after this loop, the list of records for the new column is ready
+                    TheDatabase.Data[TheDatabase.Data.Count - 1].Data = NewColsRecords;
+                }
+            }
+            Console.WriteLine("Your new column has now been added to the database!\tPress any key to continue...");
+            Console.ReadKey();
+            return;
+        }
+        string ShortformToFieldDescription(string shorthand)
+        {
+            switch (shorthand)
+            {
+                case "num":
+                    return "field of numbers";
+                case "pnm":
+                    return "field of positive numbers";
+                case "dtm":
+                    return "field to store date and time";
+                default:
+                    return "text field";
+            }
+        }
+        Type ShortformToType(string shorthand)
+        {
+            switch (shorthand)
+            {
+                case "txt":
+                    return typeof(string);
+                case "num":
+                    return typeof(Int32);
+                case "pnm":
+                    return typeof(UInt32);
+                case "dtm":
+                    return typeof(DateTime);
+                default:
+                    return typeof(error);
+            }
+        }
+        class error
+        { }
+        List<string> sRecord(int RecordNumber_startingat0)
+        {
+            int RecordNumber = RecordNumber_startingat0;
+            List<string> ToReturn = new List<string>();
+            for (int ColNum = 0; ColNum < TheDatabase.Data.Count; ColNum++)
+            {
+                if (TheDatabase.Data[ColNum].Data.Count <= RecordNumber)//new column being created, so no data in the record of that column
+                    ToReturn.Add("");//Adding empty string so that indexing of ToReturn doesn’t get messed up
+                else
+                    ToReturn.Add(Converter.ByteToString(TheDatabase.Data[ColNum].Data[RecordNumber].Data, TheDatabase.Data[ColNum].type));
+            }
+            return ToReturn;
+        }
+        List<string> sColumnHeadings()
+        {
+            List<string> ToReturn = new List<string>();
+            for (int i = 0; i < TheDatabase.Data.Count; i++)
+            {
+                ToReturn.Add(TheDatabase.Data[i].Name);
+            }
+            return ToReturn;
+        }
+    }
+    #endregion
+
     #region Column and Record Constructs
 
     public class Record
