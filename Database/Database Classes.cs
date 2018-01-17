@@ -38,6 +38,18 @@ namespace Databaser
                 Console.Write("\n");
             }
         }
+        public void CreateNewColumn()
+        {
+            Console.WriteLine("What would you like to name this field?");
+            string Name = Console.ReadLine();
+            Console.WriteLine("Your new field can be a text field (txt), a number field (num), a positive number field (pnm), a date-time field (dtm)...\nPick one of the formats for your field by entering it’s unique shorthand mentioned in brackets above");
+            string stype = Console.ReadLine();
+            //make a function to convert stype into typeof(), using select case
+            /*
+        public Type type;
+        public string Name;
+        public List<Record> Data = new List<Record>();*/
+        }
         List<string> sRecord(int RecordNumber_startingat0)
         {
             int RecordNumber = RecordNumber_startingat0;
