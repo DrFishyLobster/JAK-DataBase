@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-namespace Database
+namespace Databaser
 {
 
     #region Database Manager
@@ -157,6 +157,10 @@ namespace Database
             return output;
         }
 
+        public Record this[int index]
+        {
+            get { return Data[index]; }
+        }
 
     }
     #endregion
@@ -260,6 +264,12 @@ namespace Database
             protected NotValidFormatException(
               System.Runtime.Serialization.SerializationInfo info,
               System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+        }
+
+        public Column this[int index]
+        {
+            get { return Data[index]; }
+
         }
 
     }
