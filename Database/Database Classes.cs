@@ -20,6 +20,31 @@ namespace Database
         {
             TheDatabase = database;
         }
+        public DatabaseManager()
+        {
+            TheDatabase = new Database();
+            //RUN INTEROGATING QUESTION ON LOCATION AND DATABASE NAME
+            Console.WriteLine("Welcome to JAK! A cutting edge new database service." +
+                "\nLet's set you up. Please could you input a location, with file name, to save this to:");
+            string loc;
+            while (true)
+            {
+                try
+                {
+                    loc = Console.ReadLine();
+                    if (!loc.Contains(".bin")) loc += ".bin";
+                    BinaryWriter temp = new BinaryWriter(new FileStream(loc, FileMode.CreateNew));
+                    temp.Close();
+                    break;
+                }
+                catch (Exception x)
+                {
+                    Console.WriteLine("Wrong input. Please try again...");
+
+                }
+            }
+            TheDatabase.FilePath = loc;
+        }
         public void View_EntireDatabase()
         {
             for (int Column = 0; Column < TheDatabase.Data.Count; Column++)
