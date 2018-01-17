@@ -6,7 +6,7 @@ namespace Database
 {
 
     #region Database Manager
-    class DatabaseManager
+    public class DatabaseManager
     {
         Database TheDatabase;
         public string LastSave
@@ -22,7 +22,21 @@ namespace Database
         }
         public void View_EntireDatabase()
         {
-            for (int i = 0; i < TheDatabase.)
+            for (int Column = 0; Column < TheDatabase.Data.Count; Column++)
+            {
+                Console.Write(TheDatabase.Data[Column].Name + "\t");
+            }
+            Console.Write("\n");
+            for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
+            {
+                //display current record
+                for (int ColNum = 0; ColNum < TheDatabase.Data.Count; ColNum++)
+                {
+                    //display current cell
+                    Console.Write(Converter.ByteToString(TheDatabase.Data[ColNum].Data[RecordNum].Data, TheDatabase.Data[ColNum].type) + "\t");
+                }
+                Console.Write("\n");
+            }
         }
     }
     #endregion
