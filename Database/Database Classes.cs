@@ -30,13 +30,23 @@ namespace Database
             for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
             {
                 //display current record
-                for (int ColNum = 0; ColNum < TheDatabase.Data.Count; ColNum++)
+                List<string> RecordElements = sRecord(RecordNum);
+                for (int i = 0; i < RecordElements.Count; i++)
                 {
-                    //display current cell
-                    Console.Write(Converter.ByteToString(TheDatabase.Data[ColNum].Data[RecordNum].Data, TheDatabase.Data[ColNum].type) + "\t");
+                    Console.Write(RecordElements[i] + "\t");
                 }
                 Console.Write("\n");
             }
+        }
+        List<string> sRecord(int RecordNumber_startingat0)
+        {
+            int RecordNumber = RecordNumber_startingat0;
+            List<string> ToReturn = new List<string>();
+            for (int ColNum = 0; ColNum < TheDatabase.Data.Count; ColNum++)
+            {
+                ToReturn.Add(Converter.ByteToString(TheDatabase.Data[ColNum].Data[RecordNumber].Data, TheDatabase.Data[ColNum].type));
+            }
+            return ToReturn;
         }
     }
     #endregion
