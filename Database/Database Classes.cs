@@ -173,6 +173,55 @@ namespace Databaser
             }
             return ToReturn;
         }
+
+        public Database AskNewDatabase()
+        {
+            Database newDatabase = new Database();
+
+            do
+            {
+                Console.WriteLine("Input a new database name: ");
+                string newDatabaseName = Console.ReadLine();
+
+                if (newDatabaseName.Contains("\\"))
+                {
+                    newDatabaseName.Replace("\\", "");
+                }
+
+                newDatabase.FileName = newDatabaseName;
+
+                Console.WriteLine("Input a file path to store the new database: ");
+                string newFilePath = Console.ReadLine();
+
+                if (File.Exists(newFilePath))
+                {
+                    newDatabase.FilePath = newFilePath + "\\" + newDatabaseName + ".bin";
+                }
+                else
+                {
+                    Console.WriteLine("Input is an invalid file path.");
+                    continue;
+                }
+
+                Console.WriteLine("To confirm that {0} is your new database's name and {1} is the file path where you would like to store the databse, type 'yes' or 'no': ",newDatabaseName,newFilePath);
+                string confirmation = Console.ReadLine();
+                if (confirmation == "yes")
+                {
+                    Console.WriteLine("The new database has successfully been created");
+                    break;
+                }
+                else if (confirmation == "no")
+                {
+                    Console.WriteLine("Please try again.");
+                }
+                else
+                {
+                    Console.WriteLine("Input was invalid, please try again.");
+                }
+            } while (true);
+
+            return newDatabase;
+        }
     }
     #endregion
 
