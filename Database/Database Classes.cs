@@ -47,19 +47,19 @@ namespace Databaser
             {
                 Console.WriteLine("What would you like to name this field?");
                 iName = Console.ReadLine();
-                Console.WriteLine(@"Please type an integer for the type:
+                Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
     0 - String
-    1 - Byte
-    2 - Signed Byte
-    3 - Unsigned Short
-    4 - Short
-    5 - Unsigned Integer
+    1 - Positive Byte
+    2 - Byte
+    3 - Positive Short Integer
+    4 - Short Integer
+    5 - Positive Integer
     6 - Integer
-    7 - Unsigned Long
-    8 - Long
-    9 - Float
-    10 - Double
-    11 - Date");
+    7 - Positive Long Integer
+    8 - Long Integer
+    9 - Decimal/Fraction
+    10 - Long Decimal/Fraction.
+    11 - Date-Time");
                 while (true)
                 {
                     try
@@ -69,7 +69,7 @@ namespace Databaser
                     }
                     catch
                     {
-                        Console.WriteLine("Invalid input ... reprompting");
+                        Console.WriteLine("Invalid input, please enter a valid menu number:");
                     }
                 }
                 //Console.WriteLine("Are you sure you’d like to create a new " + ShortformToFieldDescription(stype) + " called " + iName + "? (yes/no)");
