@@ -48,7 +48,7 @@ namespace Databaser
                 Console.WriteLine("What would you like to name this field?");
                 iName = Console.ReadLine();
                 Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
-    0 - String
+    0 - Text
     1 - Positive Byte
     2 - Byte
     3 - Positive Short Integer
@@ -72,7 +72,7 @@ namespace Databaser
                         Console.WriteLine("Invalid input, please enter a valid menu number:");
                     }
                 }
-                //Console.WriteLine("Are you sure you’d like to create a new " + ShortformToFieldDescription(stype) + " called " + iName + "? (yes/no)");
+                Console.WriteLine("Are you sure you’d like to create a " + TypeName(itype) + " field called " + iName + "? (yes/no)");
                 while ((HappyWithCreation = Console.ReadLine()) != "yes" && HappyWithCreation != "no")
                 {
                     Console.WriteLine("Enter either ‘yes’ or ‘no’");
@@ -161,6 +161,38 @@ namespace Databaser
                 ToReturn.Add(TheDatabase.Data[i].Name);
             }
             return ToReturn;
+        }
+        string TypeName(Type T)
+        {
+            switch (T.ToString())
+            {
+                case "string":
+                    return "text";
+                case "Byte":
+                    return "positive byte";
+                case "SByte":
+                    return "byte";
+                case "ushort":
+                    return "positive short integer";
+                case "short":
+                    return "short integer";
+                case "uint":
+                    return "positive integer";
+                case "int":
+                    return "integer";
+                case "ulong":
+                    return "positive long integer";
+                case "long":
+                    return "long integer";
+                case "float":
+                    return "decimal";
+                case "double":
+                    return "long decimal";
+                case "DateTime":
+                    return "date-time";
+                default:
+                    return "general";//was thinking we could have a construct which allows a general field which can store many things at once... dont really know the use of it but i have to enter something in the default case otherwise all paths wouldn’t return a value
+            }
         }
     }
     #endregion
