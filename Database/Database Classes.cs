@@ -18,8 +18,9 @@ namespace Databaser
         }
         public DatabaseManager()
         {
-            Database database = new Database();
+
             bool o = true;
+            #region Level 1
             while (o)
             {
                 int res = TryToAskQuestion("0.Load Database\n1.New Database\n2.Close", 2);
@@ -30,19 +31,23 @@ namespace Databaser
                         break;
                     case 0:
                         //LoadDataBase
+                        if (TheDatabase == null) o = false;
                         break;
                     case 1:
                         //NewDataBase
                         break;
 
                 }
+                if (!o) break;
                 if (res == 0 || res == 1)
                 {
                     bool o2 = true;
+                    //Display Welcome Information
+                    #region Level 2
                     while (o2)
                     {
                         int resl2 = TryToAskQuestion("0.Display\n1.Edit,Add,Remove\n2.Query\n3.Save\n4.Close", 4);
-                        switch (res)
+                        switch (resl2)
                         {
                             case 0:
                                 View_EntireDatabase();
@@ -51,10 +56,10 @@ namespace Databaser
                                 //EDIT,ADD,REMOVE
                                 break;
                             case 2:
-                                //Query
+
                                 break;
                             case 3:
-                                database.SaveDatabase();
+                                TheDatabase.SaveDatabase();
                                 Console.WriteLine("Save complete");
                                 break;
                             case 4:
@@ -63,8 +68,10 @@ namespace Databaser
 
                         }
                     }
+                    #endregion
                 }
             }
+            #endregion
         }
 
         public int TryToAskQuestion(string Q, int maxValue)
@@ -166,9 +173,6 @@ namespace Databaser
             Console.ReadKey();
             return;
         }
-
-
-
 
         string TypeName(Type T)
         {
