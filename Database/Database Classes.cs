@@ -38,6 +38,24 @@ namespace Databaser
                 Console.Write("\n");
             }
         }
+        public Database Load_Database()
+        {
+            Console.WriteLine("Here are the databases on this computer\n");
+            string[] DbPaths = AvailblDbPaths();
+            for (int NumOfDbs = 0; NumOfDbs < DbPaths.Length; NumOfDbs++)
+                Console.WriteLine((NumOfDbs + 1) + ". " + DbPaths[NumOfDbs]);
+            Console.WriteLine("\nIf you wouldn’t like to open any of these and would like to return to the main menu, enter ‘close’");
+            Console.WriteLine("Pick the menu number of the database that you’d like to load: ");
+            string Entry = Console.ReadLine();
+            if (Entry == "close") return null;
+            int Choice = int.Parse(Entry) - 1;
+            string path = DbPaths[Choice];
+            Database.LoadDatabase(path);
+        }
+        public string[] AvailblDbPaths()
+        {
+            return Directory.GetFiles(@"C:\Users\User\Desktop", "*.bin");
+        }
         public void Create_Column()
         {
             string HappyWithCreation = "";
@@ -268,7 +286,7 @@ namespace Databaser
     {
         public List<Column> Data = new List<Column>();
         public byte[] DateOfLastSave;
-        public string FilePath = @"C:\Users\User\Desktop\Delete Me.bin";
+        public string FilePath = @"C:\Users\User\Desktop\Delete Me.bin";//default
         public string FileName = "TestFile";
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
