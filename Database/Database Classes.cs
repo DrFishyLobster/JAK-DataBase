@@ -23,14 +23,14 @@ namespace Databaser
 
         public void View_EntireDatabase()
         {
-            List<string> ColumnHeadings = sColumnHeadings();
+            List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
             for (int r = 0; r < ColumnHeadings.Count; r++)
                 Console.Write(ColumnHeadings[r] + "\t");
             Console.Write("\n");
             for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
             {
                 //display current record
-                List<string> RecordElements = sRecord(RecordNum);
+                List<string> RecordElements = TheDatabase.sRecord(RecordNum);
                 for (int i = 0; i < RecordElements.Count; i++)
                 {
                     Console.Write(RecordElements[i] + "\t");
@@ -65,6 +65,7 @@ namespace Databaser
                     try
                     {
                         itype = Converter.types[Int32.Parse(Console.ReadLine())];
+
                         break;
                     }
                     catch
@@ -72,7 +73,9 @@ namespace Databaser
                         Console.WriteLine("Invalid input, please enter a valid menu number:");
                     }
                 }
+
                 Console.WriteLine("Are you sure you’d like to create a " + TypeName(itype) + " field called " + iName + "? (yes/no)");
+
                 while ((HappyWithCreation = Console.ReadLine()) != "yes" && HappyWithCreation != "no")
                 {
                     Console.WriteLine("Enter either ‘yes’ or ‘no’");
@@ -85,14 +88,14 @@ namespace Databaser
                 {
                     Console.Clear();
                     Console.WriteLine("There are existing records in the database for which the new field must be filled out.\nPlease fill out the following information for the records already in the database:\n");
-                    List<string> ColHeadings = sColumnHeadings();   //Displaying column titles
+                    List<string> ColHeadings = TheDatabase.sColumnHeadings();   //Displaying column titles
                     for (int t = 0; t < ColHeadings.Count; t++)     //
                         Console.Write(ColHeadings[t] + "\t");       //column titles displayed
                     Console.Write("\n");//next line
                     List<Record> NewColsRecords = new List<Record>();
                     for (int i = 0; i < TheDatabase.Data[0].Data.Count; i++)//for every record, display existent data, then ask for additional data to be added to the new column
                     {
-                        List<string> CurrRecord = sRecord(i);
+                        List<string> CurrRecord = TheDatabase.sRecord(i);
                         for (int t = 0; t < CurrRecord.Count; t++)
                             Console.Write(CurrRecord[t] + "\t");
                         NewColsRecords.Add(new Record(Converter.StringToByte(Console.ReadLine(), itype), itype));
@@ -105,63 +108,9 @@ namespace Databaser
             return;
         }
 
-        #region Legacy
-        string ShortformToFieldDescription(string shorthand)
-        {
-            switch (shorthand)
-            {
-                case "num":
-                    return "field of numbers";
-                case "pnm":
-                    return "field of positive numbers";
-                case "dtm":
-                    return "field to store date and time";
-                default:
-                    return "text field";
-            }
-        }
-        Type ShortformToType(string shorthand)
-        {
-            switch (shorthand)
-            {
-                case "txt":
-                    return typeof(string);
-                case "num":
-                    return typeof(Int32);
-                case "pnm":
-                    return typeof(UInt32);
-                case "dtm":
-                    return typeof(DateTime);
-                default:
-                    return typeof(error);
-            }
-        }
 
-        class error//purpose?
-        { }
-        #endregion
-        List<string> sRecord(int RecordNumber_startingat0)
-        {
-            int RecordNumber = RecordNumber_startingat0;//is this superfluous?
-            List<string> ToReturn = new List<string>();
-            for (int ColNum = 0; ColNum < TheDatabase.Data.Count; ColNum++)
-            {
-                if (TheDatabase[ColNum].Data.Count <= RecordNumber)//why not throw an exception? //new column being created, so no data in the record of that column
-                    ToReturn.Add("");//Adding empty string so that indexing of ToReturn doesn’t get messed up
-                else
-                    ToReturn.Add(Converter.ByteToString(TheDatabase[ColNum][RecordNumber].Data, TheDatabase[ColNum].type));
-            }
-            return ToReturn;
-        }
-        List<string> sColumnHeadings()
-        {
-            List<string> ToReturn = new List<string>();
-            for (int i = 0; i < TheDatabase.Data.Count; i++)
-            {
-                ToReturn.Add(TheDatabase.Data[i].Name);
-            }
-            return ToReturn;
-        }
+
+
         string TypeName(Type T)
         {
             switch (T.ToString())
@@ -194,6 +143,8 @@ namespace Databaser
                     return "general";//was thinking we could have a construct which allows a general field which can store many things at once... dont really know the use of it but i have to enter something in the default case otherwise all paths wouldn’t return a value
             }
         }
+
+
     }
     #endregion
 
@@ -399,6 +350,29 @@ namespace Databaser
                 }
                 Data[col].Data = temp;
             }
+        }
+
+        public List<string> sRecord(int RecordNumber_startingat0)
+        {
+            int RecordNumber = RecordNumber_startingat0;//is this superfluous?
+            List<string> ToReturn = new List<string>();
+            for (int ColNum = 0; ColNum < Data.Count; ColNum++)
+            {
+                if (this[ColNum].Data.Count <= RecordNumber)//why not throw an exception? //new column being created, so no data in the record of that column
+                    ToReturn.Add("");//Adding empty string so that indexing of ToReturn doesn’t get messed up
+                else
+                    ToReturn.Add(Converter.ByteToString(this[ColNum][RecordNumber].Data, this[ColNum].type));
+            }
+            return ToReturn;
+        }
+        public List<string> sColumnHeadings()
+        {
+            List<string> ToReturn = new List<string>();
+            for (int i = 0; i < this.Data.Count; i++)
+            {
+                ToReturn.Add(this.Data[i].Name);
+            }
+            return ToReturn;
         }
 
         [Serializable]
