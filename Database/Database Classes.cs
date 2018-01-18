@@ -18,10 +18,39 @@ namespace Databaser
         }
         public DatabaseManager()
         {
+            Database database;
+            bool o = true;
+            while (o)
+            {
+                Console.WriteLine("0.Load Database\n1.New Database\n2.Close");
+                string i = Console.ReadLine();
+                int res;
+                while (!Int32.TryParse(i, out res) || res > -1 || res < 0)
+                {
+                    Console.WriteLine("Incorrect Input. Reprompting");
+                }
+                switch (res)
+                {
+                    case 2:
+                        o = false;
+                        break;
+                    case 0:
+                        //LoadDataBase
+                        break;
+                    case 1:
+                        //NewDataBase
+                        break;
 
+                }
+                if (res == 0 || res == 1)
+                {
+
+                }
+            }
         }
 
-        public void View_EntireDatabase()
+        public void
+    public void View_EntireDatabase()
         {
             List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
             for (int r = 0; r < ColumnHeadings.Count; r++)
