@@ -18,17 +18,11 @@ namespace Databaser
         }
         public DatabaseManager()
         {
-            Database database;
+            Database database = new Database();
             bool o = true;
             while (o)
             {
-                Console.WriteLine("0.Load Database\n1.New Database\n2.Close");
-                string i = Console.ReadLine();
-                int res;
-                while (!Int32.TryParse(i, out res) || res > -1 || res < 0)
-                {
-                    Console.WriteLine("Incorrect Input. Reprompting");
-                }
+                int res = TryToAskQuestion("0.Load Database\n1.New Database\n2.Close", 2);
                 switch (res)
                 {
                     case 2:
@@ -44,13 +38,49 @@ namespace Databaser
                 }
                 if (res == 0 || res == 1)
                 {
+                    bool o2 = true;
+                    while (o2)
+                    {
+                        int resl2 = TryToAskQuestion("0.Display\n1.Edit,Add,Remove\n2.Query\n3.Save\n4.Close", 4);
+                        switch (res)
+                        {
+                            case 0:
+                                View_EntireDatabase();
+                                break;
+                            case 1:
+                                //EDIT,ADD,REMOVE
+                                break;
+                            case 2:
+                                //Query
+                                break;
+                            case 3:
+                                database.SaveDatabase();
+                                Console.WriteLine("Save complete");
+                                break;
+                            case 4:
+                                o2 = false;
+                                break;
 
+                        }
+                    }
                 }
             }
         }
 
-        public void
-    public void View_EntireDatabase()
+        public int TryToAskQuestion(string Q, int maxValue)
+        {
+            Console.WriteLine(Q);
+            int res;
+            string i = Console.ReadLine();
+            while (!Int32.TryParse(i, out res) || res < 0 || res > maxValue)
+            {
+                Console.WriteLine("Incorrect Input. Reprompting");
+                i = Console.ReadLine();
+            }
+            return res;
+
+        }
+        public void View_EntireDatabase()
         {
             List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
             for (int r = 0; r < ColumnHeadings.Count; r++)
