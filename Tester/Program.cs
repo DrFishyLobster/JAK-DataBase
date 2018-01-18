@@ -5,9 +5,8 @@ namespace Tester
     {
         static void Main(string[] args)
         {
-            Database database = new Database();
-            database.Data.Add(new Column("Cars", typeof(string)));
-            database.SaveDatabase();
+            new DatabaseManager();
+
         }
     }
 }

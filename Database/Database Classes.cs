@@ -16,9 +16,9 @@ namespace Databaser
                 return Converter.ByteToString(TheDatabase.DateOfLastSave, typeof(DateTime));
             }
         }
-        public DatabaseManager(Database database)
+        public DatabaseManager()
         {
-            TheDatabase = database;
+
         }
 
         public void View_EntireDatabase()
