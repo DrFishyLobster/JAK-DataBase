@@ -47,15 +47,37 @@ namespace Databaser
             {
                 Console.WriteLine("What would you like to name this field?");
                 iName = Console.ReadLine();
-                Console.WriteLine("Your new field can be a text field (txt), a number field (num), a positive number field (pnm), a date-time field (dtm)...\nPick one of the formats for your field by entering it’s unique shorthand mentioned in brackets above");
-                string stype = Console.ReadLine();
-                itype = ShortformToType(stype);
-                Console.WriteLine("Are you sure you’d like to create a new " + ShortformToFieldDescription(stype) + " called " + iName + "? (yes/no)");
+                Console.WriteLine(@"Please type an integer for the type:
+    0 - String
+    1 - Byte
+    2 - Signed Byte
+    3 - Unsigned Short
+    4 - Short
+    5 - Unsigned Integer
+    6 - Integer
+    7 - Unsigned Long
+    8 - Long
+    9 - Float
+    10 - Double
+    11 - Date");
+                while (true)
+                {
+                    try
+                    {
+                        itype = Converter.types[Int32.Parse(Console.ReadLine())];
+                        break;
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Invalid input ... reprompting");
+                    }
+                }
+                //Console.WriteLine("Are you sure you’d like to create a new " + ShortformToFieldDescription(stype) + " called " + iName + "? (yes/no)");
                 while ((HappyWithCreation = Console.ReadLine()) != "yes" && HappyWithCreation != "no")
                 {
                     Console.WriteLine("Enter either ‘yes’ or ‘no’");
                 }
-            } while (HappyWithCreation != "yes" && HappyWithCreation != "no");
+            } while (HappyWithCreation == "no");
             TheDatabase.Data.Add(new Column(iName, itype));
             if (TheDatabase.Data.Count > 0)//Database has some columns
             {
@@ -83,6 +105,7 @@ namespace Databaser
             return;
         }
 
+        #region Legacy
         string ShortformToFieldDescription(string shorthand)
         {
             switch (shorthand)
@@ -113,8 +136,10 @@ namespace Databaser
                     return typeof(error);
             }
         }
+
         class error//purpose?
         { }
+        #endregion
         List<string> sRecord(int RecordNumber_startingat0)
         {
             int RecordNumber = RecordNumber_startingat0;//is this superfluous?
