@@ -124,8 +124,8 @@ namespace Databaser
                         break;
                     case 2:
                         #region Display
-                        int res2 = TryToAskQuestion("Please insert the how many of the top elements you want?", copy.Data.Count);
-                        for (int rec = 0; rec < res2; rec++)
+                        int res3 = TryToAskQuestion("Please insert the how many of the top elements you want?", copy.Data.Count);
+                        for (int rec = 0; rec < res3; rec++)
                         {
                             //Print out record;
                         }
@@ -153,7 +153,8 @@ namespace Databaser
 
         private byte[] RequestData(Type type)
         {
-            while (!Converter.TryParseToByte(Console.ReadLine(), type, out byte[] output))
+            byte[] output;
+            while (!Converter.TryParseToByte(Console.ReadLine(), type, out output))
             {
                 Console.WriteLine("Invalid Input, Reprompting...");
             }
@@ -165,11 +166,11 @@ namespace Databaser
 
             Console.BackgroundColor = ConsoleColor.DarkRed;
             Console.ForegroundColor = ConsoleColor.White;
-            List<string> ColumnHeadings = sColumnHeadings();
+            List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
 
             for (int r = 0; r < ColumnHeadings.Count; r++)
                 Console.Write(ColumnHeadings[r] + "\t");
-                Console.ResetColor();
+            Console.ResetColor();
 
             //LEAVE THIS ALONE!!!!
             Console.WriteLine();
@@ -178,7 +179,7 @@ namespace Databaser
             {
                 //display current record
 
-                List<string> RecordElements = sRecord(RecordNum);
+                List<string> RecordElements = TheDatabase.sRecord(RecordNum);
                 Console.BackgroundColor = ConsoleColor.Gray;
                 Console.ForegroundColor = ConsoleColor.White;
 
