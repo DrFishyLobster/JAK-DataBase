@@ -16,26 +16,107 @@ namespace Databaser
                 return Converter.ByteToString(TheDatabase.DateOfLastSave, typeof(DateTime));
             }
         }
-        public DatabaseManager(Database database)
+        public DatabaseManager()
         {
-            TheDatabase = database;
+
+            bool o = true;
+            #region Level 1
+            while (o)
+            {
+                int res = TryToAskQuestion("0.Load Database\n1.New Database\n2.Close", 2);
+                switch (res)
+                {
+                    case 2:
+                        o = false;
+                        break;
+                    case 0:
+                        //LoadDataBase
+                        if (TheDatabase == null) o = false;
+                        break;
+                    case 1:
+                        //NewDataBase
+                        break;
+
+                }
+                if (!o) break;
+                if (res == 0 || res == 1)
+                {
+                    bool o2 = true;
+                    //Display Welcome Information
+                    #region Level 2
+                    while (o2)
+                    {
+                        int resl2 = TryToAskQuestion("0.Display\n1.Edit,Add,Remove\n2.Query\n3.Save\n4.Close", 4);
+                        switch (resl2)
+                        {
+                            case 0:
+                                View_EntireDatabase();
+                                break;
+                            case 1:
+                                //EDIT,ADD,REMOVE
+                                break;
+                            case 2:
+
+                                break;
+                            case 3:
+                                TheDatabase.SaveDatabase();
+                                Console.WriteLine("Save complete");
+                                break;
+                            case 4:
+                                o2 = false;
+                                break;
+
+                        }
+                    }
+                    #endregion
+                }
+            }
+            #endregion
         }
 
+        public int TryToAskQuestion(string Q, int maxValue)
+        {
+            Console.WriteLine(Q);
+            int res;
+            string i = Console.ReadLine();
+            while (!Int32.TryParse(i, out res) || res < 0 || res > maxValue)
+            {
+                Console.WriteLine("Incorrect Input. Reprompting");
+                i = Console.ReadLine();
+            }
+            return res;
+
+        }
         public void View_EntireDatabase()
         {
-            List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
+
+            Console.BackgroundColor = ConsoleColor.DarkRed;
+            Console.ForegroundColor = ConsoleColor.White;
+            List<string> ColumnHeadings = sColumnHeadings();
+
             for (int r = 0; r < ColumnHeadings.Count; r++)
                 Console.Write(ColumnHeadings[r] + "\t");
-            Console.Write("\n");
+                Console.ResetColor();
+
+            //LEAVE THIS ALONE!!!!
+            Console.WriteLine();
+
             for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
             {
                 //display current record
-                List<string> RecordElements = TheDatabase.sRecord(RecordNum);
+
+                List<string> RecordElements = sRecord(RecordNum);
+                Console.BackgroundColor = ConsoleColor.Gray;
+                Console.ForegroundColor = ConsoleColor.White;
+
                 for (int i = 0; i < RecordElements.Count; i++)
                 {
                     Console.Write(RecordElements[i] + "\t");
                 }
-                Console.Write("\n");
+                Console.ResetColor();
+
+                //LEAVE THIS ALONE!!!!
+                Console.WriteLine();
             }
         }
         public Database Load_Database()
@@ -125,9 +206,6 @@ namespace Databaser
             Console.ReadKey();
             return;
         }
-
-
-
 
         string TypeName(Type T)
         {
@@ -286,7 +364,12 @@ namespace Databaser
     {
         public List<Column> Data = new List<Column>();
         public byte[] DateOfLastSave;
+<<<<<<< HEAD
         public string FilePath = @"C:\Users\User\Desktop\Delete Me.bin";//default
+=======
+        public const string FolderPath = ""; // to Compelte
+        public string FilePath = "";
+>>>>>>> master
         public string FileName = "TestFile";
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
