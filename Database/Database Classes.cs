@@ -331,7 +331,8 @@ namespace Databaser
     {
         public List<Column> Data = new List<Column>();
         public byte[] DateOfLastSave;
-        public string FilePath = @"C:\Users\User\Desktop\Delete Me.bin";
+        public const string FolderPath = ""; // to Compelte
+        public string FilePath = "";
         public string FileName = "TestFile";
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
