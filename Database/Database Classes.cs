@@ -89,19 +89,34 @@ namespace Databaser
         }
         public void View_EntireDatabase()
         {
-            List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
+
+            Console.BackgroundColor = ConsoleColor.DarkRed;
+            Console.ForegroundColor = ConsoleColor.White;
+            List<string> ColumnHeadings = sColumnHeadings();
+
             for (int r = 0; r < ColumnHeadings.Count; r++)
                 Console.Write(ColumnHeadings[r] + "\t");
-            Console.Write("\n");
+                Console.ResetColor();
+
+            //LEAVE THIS ALONE!!!!
+            Console.WriteLine();
+
             for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
             {
                 //display current record
-                List<string> RecordElements = TheDatabase.sRecord(RecordNum);
+
+                List<string> RecordElements = sRecord(RecordNum);
+                Console.BackgroundColor = ConsoleColor.Gray;
+                Console.ForegroundColor = ConsoleColor.White;
+
                 for (int i = 0; i < RecordElements.Count; i++)
                 {
                     Console.Write(RecordElements[i] + "\t");
                 }
-                Console.Write("\n");
+                Console.ResetColor();
+
+                //LEAVE THIS ALONE!!!!
+                Console.WriteLine();
             }
         }
         public void Create_Column()
