@@ -16,16 +16,84 @@ namespace Databaser
                 return Converter.ByteToString(TheDatabase.DateOfLastSave, typeof(DateTime));
             }
         }
-        public DatabaseManager(Database database)
+        public DatabaseManager()
         {
-            TheDatabase = database;
+
+            bool o = true;
+            #region Level 1
+            while (o)
+            {
+                int res = TryToAskQuestion("0.Load Database\n1.New Database\n2.Close", 2);
+                switch (res)
+                {
+                    case 2:
+                        o = false;
+                        break;
+                    case 0:
+                        //LoadDataBase
+                        if (TheDatabase == null) o = false;
+                        break;
+                    case 1:
+                        //NewDataBase
+                        break;
+
+                }
+                if (!o) break;
+                if (res == 0 || res == 1)
+                {
+                    bool o2 = true;
+                    //Display Welcome Information
+                    #region Level 2
+                    while (o2)
+                    {
+                        int resl2 = TryToAskQuestion("0.Display\n1.Edit,Add,Remove\n2.Query\n3.Save\n4.Close", 4);
+                        switch (resl2)
+                        {
+                            case 0:
+                                View_EntireDatabase();
+                                break;
+                            case 1:
+                                //EDIT,ADD,REMOVE
+                                break;
+                            case 2:
+
+                                break;
+                            case 3:
+                                TheDatabase.SaveDatabase();
+                                Console.WriteLine("Save complete");
+                                break;
+                            case 4:
+                                o2 = false;
+                                break;
+
+                        }
+                    }
+                    #endregion
+                }
+            }
+            #endregion
         }
 
+        public int TryToAskQuestion(string Q, int maxValue)
+        {
+            Console.WriteLine(Q);
+            int res;
+            string i = Console.ReadLine();
+            while (!Int32.TryParse(i, out res) || res < 0 || res > maxValue)
+            {
+                Console.WriteLine("Incorrect Input. Reprompting");
+                i = Console.ReadLine();
+            }
+            return res;
+
+        }
         public void View_EntireDatabase()
         {
+
             Console.BackgroundColor = ConsoleColor.DarkRed;
             Console.ForegroundColor = ConsoleColor.White;
             List<string> ColumnHeadings = sColumnHeadings();
+
             for (int r = 0; r < ColumnHeadings.Count; r++)
                 Console.Write(ColumnHeadings[r] + "\t");
                 Console.ResetColor();
@@ -36,9 +104,11 @@ namespace Databaser
             for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
             {
                 //display current record
+
                 List<string> RecordElements = sRecord(RecordNum);
                 Console.BackgroundColor = ConsoleColor.Gray;
                 Console.ForegroundColor = ConsoleColor.White;
+
                 for (int i = 0; i < RecordElements.Count; i++)
                 {
                     Console.Write(RecordElements[i] + "\t");
@@ -58,32 +128,35 @@ namespace Databaser
             {
                 Console.WriteLine("What would you like to name this field?");
                 iName = Console.ReadLine();
-                Console.WriteLine(@"Please type an integer for the type:
-    0 - String
-    1 - Byte
-    2 - Signed Byte
-    3 - Unsigned Short
-    4 - Short
-    5 - Unsigned Integer
+                Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
+    0 - Text
+    1 - Positive Byte
+    2 - Byte
+    3 - Positive Short Integer
+    4 - Short Integer
+    5 - Positive Integer
     6 - Integer
-    7 - Unsigned Long
-    8 - Long
-    9 - Float
-    10 - Double
-    11 - Date");
+    7 - Positive Long Integer
+    8 - Long Integer
+    9 - Decimal/Fraction
+    10 - Long Decimal/Fraction.
+    11 - Date-Time");
                 while (true)
                 {
                     try
                     {
                         itype = Converter.types[Int32.Parse(Console.ReadLine())];
+
                         break;
                     }
                     catch
                     {
-                        Console.WriteLine("Invalid input ... reprompting");
+                        Console.WriteLine("Invalid input, please enter a valid menu number:");
                     }
                 }
-                //Console.WriteLine("Are you sure you’d like to create a new " + ShortformToFieldDescription(stype) + " called " + iName + "? (yes/no)");
+
+                Console.WriteLine("Are you sure you’d like to create a " + TypeName(itype) + " field called " + iName + "? (yes/no)");
+
                 while ((HappyWithCreation = Console.ReadLine()) != "yes" && HappyWithCreation != "no")
                 {
                     Console.WriteLine("Enter either ‘yes’ or ‘no’");
@@ -96,14 +169,14 @@ namespace Databaser
                 {
                     Console.Clear();
                     Console.WriteLine("There are existing records in the database for which the new field must be filled out.\nPlease fill out the following information for the records already in the database:\n");
-                    List<string> ColHeadings = sColumnHeadings();   //Displaying column titles
+                    List<string> ColHeadings = TheDatabase.sColumnHeadings();   //Displaying column titles
                     for (int t = 0; t < ColHeadings.Count; t++)     //
                         Console.Write(ColHeadings[t] + "\t");       //column titles displayed
                     Console.Write("\n");//next line
                     List<Record> NewColsRecords = new List<Record>();
                     for (int i = 0; i < TheDatabase.Data[0].Data.Count; i++)//for every record, display existent data, then ask for additional data to be added to the new column
                     {
-                        List<string> CurrRecord = sRecord(i);
+                        List<string> CurrRecord = TheDatabase.sRecord(i);
                         for (int t = 0; t < CurrRecord.Count; t++)
                             Console.Write(CurrRecord[t] + "\t");
                         NewColsRecords.Add(new Record(Converter.StringToByte(Console.ReadLine(), itype), itype));
@@ -116,112 +189,40 @@ namespace Databaser
             return;
         }
 
-        #region Legacy
-        string ShortformToFieldDescription(string shorthand)
+        string TypeName(Type T)
         {
-            switch (shorthand)
+            switch (T.ToString())
             {
-                case "num":
-                    return "field of numbers";
-                case "pnm":
-                    return "field of positive numbers";
-                case "dtm":
-                    return "field to store date and time";
+                case "string":
+                    return "text";
+                case "Byte":
+                    return "positive byte";
+                case "SByte":
+                    return "byte";
+                case "ushort":
+                    return "positive short integer";
+                case "short":
+                    return "short integer";
+                case "uint":
+                    return "positive integer";
+                case "int":
+                    return "integer";
+                case "ulong":
+                    return "positive long integer";
+                case "long":
+                    return "long integer";
+                case "float":
+                    return "decimal";
+                case "double":
+                    return "long decimal";
+                case "DateTime":
+                    return "date-time";
                 default:
-                    return "text field";
-            }
-        }
-        Type ShortformToType(string shorthand)
-        {
-            switch (shorthand)
-            {
-                case "txt":
-                    return typeof(string);
-                case "num":
-                    return typeof(Int32);
-                case "pnm":
-                    return typeof(UInt32);
-                case "dtm":
-                    return typeof(DateTime);
-                default:
-                    return typeof(error);
+                    return "general";//was thinking we could have a construct which allows a general field which can store many things at once... dont really know the use of it but i have to enter something in the default case otherwise all paths wouldn’t return a value
             }
         }
 
-        class error//purpose?
-        { }
-        #endregion
-        List<string> sRecord(int RecordNumber_startingat0)
-        {
-            int RecordNumber = RecordNumber_startingat0;//is this superfluous?
-            List<string> ToReturn = new List<string>();
-            for (int ColNum = 0; ColNum < TheDatabase.Data.Count; ColNum++)
-            {
-                if (TheDatabase[ColNum].Data.Count <= RecordNumber)//why not throw an exception? //new column being created, so no data in the record of that column
-                    ToReturn.Add("");//Adding empty string so that indexing of ToReturn doesn’t get messed up
-                else
-                    ToReturn.Add(Converter.ByteToString(TheDatabase[ColNum][RecordNumber].Data, TheDatabase[ColNum].type));
-            }
-            return ToReturn;
-        }
-        List<string> sColumnHeadings()
-        {
-            List<string> ToReturn = new List<string>();
-            for (int i = 0; i < TheDatabase.Data.Count; i++)
-            {
-                ToReturn.Add(TheDatabase.Data[i].Name);
-            }
-            return ToReturn;
-        }
 
-        public Database AskNewDatabase()
-        {
-            Database newDatabase = new Database();
-
-            do
-            {
-                Console.WriteLine("Input a new database name: ");
-                string newDatabaseName = Console.ReadLine();
-
-                if (newDatabaseName.Contains("\\"))
-                {
-                    newDatabaseName.Replace("\\", "");
-                }
-
-                newDatabase.FileName = newDatabaseName;
-
-                Console.WriteLine("Input a file path to store the new database: ");
-                string newFilePath = Console.ReadLine();
-
-                if (File.Exists(newFilePath))
-                {
-                    newDatabase.FilePath = newFilePath + "\\" + newDatabaseName + ".bin";
-                }
-                else
-                {
-                    Console.WriteLine("Input is an invalid file path.");
-                    continue;
-                }
-
-                Console.WriteLine("To confirm that {0} is your new database's name and {1} is the file path where you would like to store the databse, type 'yes' or 'no': ",newDatabaseName,newFilePath);
-                string confirmation = Console.ReadLine();
-                if (confirmation == "yes")
-                {
-                    Console.WriteLine("The new database has successfully been created");
-                    break;
-                }
-                else if (confirmation == "no")
-                {
-                    Console.WriteLine("Please try again.");
-                }
-                else
-                {
-                    Console.WriteLine("Input was invalid, please try again.");
-                }
-            } while (true);
-
-            return newDatabase;
-        }
     }
     #endregion
 
@@ -345,7 +346,8 @@ namespace Databaser
     {
         public List<Column> Data = new List<Column>();
         public byte[] DateOfLastSave;
-        public string FilePath = @"C:\Users\User\Desktop\Delete Me.bin";
+        public const string FolderPath = ""; // to Compelte
+        public string FilePath = "";
         public string FileName = "TestFile";
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
@@ -427,6 +429,29 @@ namespace Databaser
                 }
                 Data[col].Data = temp;
             }
+        }
+
+        public List<string> sRecord(int RecordNumber_startingat0)
+        {
+            int RecordNumber = RecordNumber_startingat0;//is this superfluous?
+            List<string> ToReturn = new List<string>();
+            for (int ColNum = 0; ColNum < Data.Count; ColNum++)
+            {
+                if (this[ColNum].Data.Count <= RecordNumber)//why not throw an exception? //new column being created, so no data in the record of that column
+                    ToReturn.Add("");//Adding empty string so that indexing of ToReturn doesn’t get messed up
+                else
+                    ToReturn.Add(Converter.ByteToString(this[ColNum][RecordNumber].Data, this[ColNum].type));
+            }
+            return ToReturn;
+        }
+        public List<string> sColumnHeadings()
+        {
+            List<string> ToReturn = new List<string>();
+            for (int i = 0; i < this.Data.Count; i++)
+            {
+                ToReturn.Add(this.Data[i].Name);
+            }
+            return ToReturn;
         }
 
         [Serializable]
