@@ -18,7 +18,10 @@ namespace Databaser
         }
         public DatabaseManager()
         {
-
+            if (Directory.GetDirectories(Database.FolderPath).Length == 0)//If the JAK folder doesn’t exist on the comp, create one
+            {
+                Directory.CreateDirectory(Database.FolderPath);
+            }
             bool o = true;
             #region Level 1
             while (o)
@@ -92,7 +95,7 @@ namespace Databaser
 
             Console.BackgroundColor = ConsoleColor.DarkRed;
             Console.ForegroundColor = ConsoleColor.White;
-            List<string> ColumnHeadings = sColumnHeadings();
+            List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
 
             for (int r = 0; r < ColumnHeadings.Count; r++)
                 Console.Write(ColumnHeadings[r] + "\t");
@@ -105,7 +108,7 @@ namespace Databaser
             {
                 //display current record
 
-                List<string> RecordElements = sRecord(RecordNum);
+                List<string> RecordElements = TheDatabase.sRecord(RecordNum);
                 Console.BackgroundColor = ConsoleColor.Gray;
                 Console.ForegroundColor = ConsoleColor.White;
 
@@ -133,9 +136,44 @@ namespace Databaser
             string path = DbPaths[Choice];
             Database.LoadDatabase(path);
         }
-        public string[] AvailblDbPaths()
+        string[] AvailblDbPaths()
         {
-            return Directory.GetFiles(@"C:\Users\User\Desktop", "*.bin");
+            string[] AllBins = Directory.GetFiles(Database.FolderPath, "*.bin");
+        }
+        string GetFileName(string EnteredPath)
+        {
+            if (!EnteredPath.Contains(".bin")) EnteredPath += ".bin";
+            string FilePath = EnteredPath;
+            if (EnteredPath.Length < 13 || EnteredPath.Split(new char[] { EnteredPath.ToCharArray()[12] })[0] != Database.FolderPath)//checking if folderpath is included in the entered directory of not
+                FilePath = Path.Combine(Database.FolderPath, EnteredPath);
+            //FilePath is now in correct format to be used by functions
+
+            BinaryReader binaryReader = new BinaryReader(new FileStream(FilePath, FileMode.Open));
+
+            //Checks to see if in correct format
+            if (binaryReader.BaseStream.Length < 8) return ":";
+            else
+            {
+                try
+                {
+                    binaryReader.ReadUInt64();
+                }
+                catch
+                {
+                    return "\\";
+                }
+            }
+
+            //Reads the correct amount of bytes to finally reach the filename
+            byte CCount = binaryReader.ReadByte();
+            for (int col = 0; col < CCount; col++)
+            {
+                binaryReader.ReadByte();
+                binaryReader.ReadNextRecord(typeof(String));
+            }
+            binaryReader.ReadNextRecord(typeof(DateTime));
+
+            return Converter.ByteToString(binaryReader.ReadNextRecord(typeof(string)), typeof(string));
         }
         public void Create_Column()
         {
@@ -364,12 +402,8 @@ namespace Databaser
     {
         public List<Column> Data = new List<Column>();
         public byte[] DateOfLastSave;
-<<<<<<< HEAD
-        public string FilePath = @"C:\Users\User\Desktop\Delete Me.bin";//default
-=======
-        public const string FolderPath = ""; // to Compelte
-        public string FilePath = "";
->>>>>>> master
+        public static string FolderPath = @"C:\Users\JAK";
+        public string FilePath = "NameOfDatabase.bin";
         public string FileName = "TestFile";
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
@@ -382,7 +416,7 @@ namespace Databaser
         public static Database LoadDatabase(string FilePath)
         {
             if (!FilePath.Contains(".bin")) FilePath += ".bin";
-            BinaryReader binaryReader = new BinaryReader(new FileStream(FilePath, FileMode.Open));
+            BinaryReader binaryReader = new BinaryReader(new FileStream(Path.Combine(FolderPath, FilePath), FileMode.Open));
 
             //Checks to see if in correct format
             if (binaryReader.BaseStream.Length < 8) throw new NotValidFormatException("Less than 8 bytes");
