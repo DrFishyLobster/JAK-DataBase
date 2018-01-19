@@ -92,7 +92,7 @@ namespace Databaser
 
             Console.BackgroundColor = ConsoleColor.DarkRed;
             Console.ForegroundColor = ConsoleColor.White;
-            List<string> ColumnHeadings = sColumnHeadings();
+            List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
 
             for (int r = 0; r < ColumnHeadings.Count; r++)
                 Console.Write(ColumnHeadings[r] + "\t");
@@ -105,7 +105,7 @@ namespace Databaser
             {
                 //display current record
 
-                List<string> RecordElements = sRecord(RecordNum);
+                List<string> RecordElements = TheDatabase.sRecord(RecordNum);
                 Console.BackgroundColor = ConsoleColor.Gray;
                 Console.ForegroundColor = ConsoleColor.White;
 
@@ -220,6 +220,54 @@ namespace Databaser
                 default:
                     return "general";//was thinking we could have a construct which allows a general field which can store many things at once... dont really know the use of it but i have to enter something in the default case otherwise all paths wouldn’t return a value
             }
+        }
+        public Database AskNewDatabase()
+        {
+            Database newDatabase = new Database();
+
+            do
+            {
+                Console.WriteLine("Input a new database name: ");
+                string newDatabaseName = Console.ReadLine();
+
+                if (newDatabaseName.Contains("\\"))
+                {
+                    newDatabaseName.Replace("\\", "");
+                }
+
+                newDatabase.FileName = newDatabaseName;
+
+                Console.WriteLine("Input a file path to store the new database: ");
+                string newFilePath = Console.ReadLine();
+
+                if (File.Exists(newFilePath))
+                {
+                    newDatabase.FilePath = newFilePath + "\\" + newDatabaseName + ".bin";
+                }
+                else
+                {
+                    Console.WriteLine("Input is an invalid file path.");
+                    continue;
+                }
+
+                Console.WriteLine("To confirm that {0} is your new database's name and {1} is the file path where you would like to store the databse, type 'yes' or 'no': ", newDatabaseName, newFilePath);
+                string confirmation = Console.ReadLine();
+                if (confirmation == "yes")
+                {
+                    Console.WriteLine("The new database has successfully been created");
+                    break;
+                }
+                else if (confirmation == "no")
+                {
+                    Console.WriteLine("Please try again.");
+                }
+                else
+                {
+                    Console.WriteLine("Input was invalid, please try again.");
+                }
+            } while (true);
+
+            return newDatabase;
         }
 
 
