@@ -42,7 +42,8 @@ namespace Databaser
                 if (res == 0 || res == 1)
                 {
                     bool o2 = true;
-                    //Display Welcome Information
+                    Console.WriteLine($"You are running JAK Database Solutions\nWelcome to {TheDatabase.FileName}!" +
+                        $"\nThe last edit was made {Converter.ByteToString(TheDatabase.DateOfLastSave, typeof(DateTime))}.\n");
                     #region Level 2
                     while (o2)
                     {
@@ -56,7 +57,7 @@ namespace Databaser
                                 //EDIT,ADD,REMOVE
                                 break;
                             case 2:
-
+                                QueryCopyOfDatabase();
                                 break;
                             case 3:
                                 TheDatabase.SaveDatabase();
@@ -87,6 +88,78 @@ namespace Databaser
             return res;
 
         }
+        public void QueryCopyOfDatabase()
+        {
+            Database copy = TheDatabase.CopyDatabase();
+            bool o = true;
+            #region Level 3
+            while (o)
+            {
+                int res = TryToAskQuestion("0.Sort\n1.Filter\n2.Display\n3.Save File\n4.Replace Database\n5.Return to Menu", 6);
+                switch (res)
+                {
+                    case 0:
+                        #region Sorter
+                        for (int col = 0; col < copy.Data.Count; col++)
+                        {
+                            Console.WriteLine($"{col}.{copy[col].Name}");
+                        }
+                        int column = TryToAskQuestion("", copy.Data.Count);
+                        copy.ApplyPattern(copy[column].GenerateSortPattern((SortStyle)
+                            TryToAskQuestion("0.Ascending\n1.Descending", 2)));
+                        #endregion
+                        break;
+                    case 1:
+                        #region Filterer
+                        for (int col = 0; col < copy.Data.Count; col++)
+                        {
+                            Console.WriteLine($"{col}.{copy[col].Name}");
+                        }
+                        int columnfilter = TryToAskQuestion("", copy.Data.Count);
+                        FilterStyle res2 = (FilterStyle)TryToAskQuestion("0.Equal To\n1.Greater Than Or Equal To\n2.Less Than Or Equal To\n3.Greater Than\n4.Less Than", 5);
+                        Console.WriteLine("Please insert your comparetor");
+                        byte[] input = RequestData(copy[columnfilter].type);
+                        copy.ApplyPattern(copy[columnfilter].GenerateFilterPattern((FilterStyle)res, new Record(input, copy[columnfilter].type)));
+                        #endregion
+                        break;
+                    case 2:
+                        #region Display
+                        int res2 = TryToAskQuestion("Please insert the how many of the top elements you want?", copy.Data.Count);
+                        for (int rec = 0; rec < res2; rec++)
+                        {
+                            //Print out record;
+                        }
+                        #endregion
+                        break;
+                    case 3:
+                        #region Save File
+                        //KARAN
+                        #endregion
+                        break;
+                    case 4:
+                        #region Replace Database
+                        TheDatabase = copy;
+                        Console.WriteLine("Database replaced");
+                        #endregion
+                        break;
+                    case 5:
+                        o = false;
+                        break;
+
+                }
+            }
+            #endregion
+        }
+
+        private byte[] RequestData(Type type)
+        {
+            while (!Converter.TryParseToByte(Console.ReadLine(), type, out byte[] output))
+            {
+                Console.WriteLine("Invalid Input, Reprompting...");
+            }
+            return output;
+        }
+
         public void View_EntireDatabase()
         {
 
@@ -232,10 +305,23 @@ namespace Databaser
     {
         public Type type;
         public byte[] Data;
+        public Record()
+        {
+
+        }
         public Record(byte[] d, Type t)
         {
             Data = d;
             type = t;
+        }
+        public Record CopyRecord()
+        {
+            Record output = new Record();
+            output.type = type;
+            byte[] temp = new byte[Data.Length];
+            Array.Copy(Data, temp, Data.Length);
+            output.Data = temp;
+            return output;
         }
         public int CompareTo(Record other)
         {
@@ -331,7 +417,34 @@ namespace Databaser
             }
             return output;
         }
-
+        public List<int> GenerateFilterPattern(FilterStyle filterStyle, Record Comparison)
+        {
+            List<int> output = new List<int>();
+            for (int item = 0; item < Data.Count; item++)
+            {
+                if (Comparison.CompareTo(Data[item]) == 0 && (filterStyle == FilterStyle.Equal
+                    || filterStyle == FilterStyle.GreaterThanOrEqual || filterStyle == FilterStyle.LessThanOrEqual))
+                    output.Add(item);
+                else if (Comparison.CompareTo(Data[item]) > 0 && (filterStyle == FilterStyle.GreaterThan || filterStyle == FilterStyle.GreaterThanOrEqual))
+                    output.Add(item);
+                else if (Comparison.CompareTo(Data[item]) < 0 && (filterStyle == FilterStyle.LessThan || filterStyle == FilterStyle.LessThanOrEqual))
+                    output.Add(item);
+            }
+            return output;
+        }
+        public Column CopyColumn()
+        {
+            Column output = new Column();
+            output.type = type;
+            output.Name = Name;
+            List<Record> temp = new List<Record>();
+            foreach (var item in Data)
+            {
+                temp.Add(item.CopyRecord());
+            }
+            output.Data = temp;
+            return output;
+        }
         public Record this[int index]
         {
             get { return Data[index]; }
@@ -342,6 +455,7 @@ namespace Databaser
 
     #region Database Constructs
     public enum SortStyle { Ascending, Descending };
+    public enum FilterStyle { Equal, GreaterThanOrEqual, LessThanOrEqual, GreaterThan, LessThan }
     public class Database
     {
         public List<Column> Data = new List<Column>();
@@ -429,6 +543,20 @@ namespace Databaser
                 }
                 Data[col].Data = temp;
             }
+        }
+        public Database CopyDatabase()
+        {
+            Database output = new Database();
+            output.DateOfLastSave = DateOfLastSave;
+            output.FileName = FileName;
+            output.FilePath = FilePath;
+            List<Column> temp = new List<Column>();
+            foreach (var item in Data)
+            {
+                temp.Add(item.CopyColumn());
+            }
+            output.Data = temp;
+            return output;
         }
 
         public List<string> sRecord(int RecordNumber_startingat0)
