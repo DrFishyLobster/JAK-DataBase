@@ -36,7 +36,10 @@ namespace Databaser
                         if (TheDatabase == null) bts = true;
                         break;
                     case 1:
-                        //NewDataBase
+                        TheDatabase = AskNewDatabase();
+                        break;
+                    case 2:
+                        o = false;
                         break;
 
                 }
@@ -165,34 +168,40 @@ namespace Databaser
 
         public void View_EntireDatabase()
         {
-
-            Console.BackgroundColor = ConsoleColor.DarkRed;
-            Console.ForegroundColor = ConsoleColor.White;
-            List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
-
-            for (int r = 0; r < ColumnHeadings.Count; r++)
-                Console.Write(ColumnHeadings[r] + "\t");
-            Console.ResetColor();
-
-            //LEAVE THIS ALONE!!!!
-            Console.WriteLine();
-
-            for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
+            if (TheDatabase.Data.Count == 0 || TheDatabase[0].Data.Count == 0)
             {
-                //display current record
-
-                List<string> RecordElements = TheDatabase.sRecord(RecordNum);
-                Console.BackgroundColor = ConsoleColor.Gray;
+                Console.WriteLine("The Databse is empty there is nothing to display.");
+            }
+            else
+            {
+                Console.BackgroundColor = ConsoleColor.DarkRed;
                 Console.ForegroundColor = ConsoleColor.White;
+                List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
 
-                for (int i = 0; i < RecordElements.Count; i++)
-                {
-                    Console.Write(RecordElements[i] + "\t");
-                }
+                for (int r = 0; r < ColumnHeadings.Count; r++)
+                    Console.Write(ColumnHeadings[r] + "\t");
                 Console.ResetColor();
 
                 //LEAVE THIS ALONE!!!!
                 Console.WriteLine();
+
+                for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
+                {
+                    //display current record
+
+                    List<string> RecordElements = TheDatabase.sRecord(RecordNum);
+                    Console.BackgroundColor = ConsoleColor.Gray;
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    for (int i = 0; i < RecordElements.Count; i++)
+                    {
+                        Console.Write(RecordElements[i] + "\t");
+                    }
+                    Console.ResetColor();
+
+                    //LEAVE THIS ALONE!!!!
+                    Console.WriteLine();
+                }
             }
         }
         public Database Load_Database()
