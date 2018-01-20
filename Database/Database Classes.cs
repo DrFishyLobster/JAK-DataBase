@@ -28,6 +28,7 @@ namespace Databaser
             while (o)
             {
                 int res = TryToAskQuestion("0.Load Database\n1.New Database\n2.Close", 2);
+                Console.Clear();
                 switch (res)
                 {
                     case 0:
@@ -46,6 +47,7 @@ namespace Databaser
                 if (bts) { bts = false; continue; }
                 if (res == 0 || res == 1)
                 {
+                    Console.Clear();
                     bool o2 = true;
                     Console.WriteLine($"You are running JAK Database Solutions\nWelcome to {TheDatabase.FileName}!" +
                         $"\nThe last edit was made {LastSave}.\n");
@@ -53,20 +55,27 @@ namespace Databaser
                     while (o2)
                     {
                         int resl2 = TryToAskQuestion("0.Display\n1.Edit,Add,Remove\n2.Query\n3.Save\n4.Close", 4);
+                        Console.Clear();
                         switch (resl2)
                         {
                             case 0:
                                 View_EntireDatabase();
+                                Console.Clear();
                                 break;
                             case 1:
                                 MasterEditor();
+                                Console.Clear();
                                 break;
                             case 2:
                                 QueryCopyOfDatabase();
+                                Console.Clear();
                                 break;
                             case 3:
                                 TheDatabase.SaveDatabase();
                                 Console.WriteLine("Save complete");
+                                Console.WriteLine("Press any key...");
+                                Console.ReadKey();
+                                Console.Clear();
                                 break;
                             case 4:
                                 o2 = false;
@@ -101,6 +110,7 @@ namespace Databaser
             while (o)
             {
                 int res = TryToAskQuestion("0.Sort\n1.Filter\n2.Display\n3.Save File\n4.Replace Database\n5.Return to Menu", 6);
+                Console.Clear();
                 switch (res)
                 {
                     case 0:
@@ -112,6 +122,7 @@ namespace Databaser
                         int column = TryToAskQuestion("", copy.Data.Count);
                         copy.ApplyPattern(copy[column].GenerateSortPattern((SortStyle)
                             TryToAskQuestion("0.Ascending\n1.Descending", 2)));
+                        Console.Clear();
                         #endregion
                         break;
                     case 1:
@@ -125,15 +136,51 @@ namespace Databaser
                         Console.WriteLine("Please insert your comparetor");
                         byte[] input = RequestData(copy[columnfilter].type);
                         copy.ApplyPattern(copy[columnfilter].GenerateFilterPattern((FilterStyle)res, new Record(input, copy[columnfilter].type)));
+                        Console.Clear();
                         #endregion
                         break;
                     case 2:
                         #region Display
-                        int res3 = TryToAskQuestion("Please insert the how many of the top elements you want?", copy.Data.Count);
-                        for (int rec = 0; rec < res3; rec++)
+
+                        if (copy.Data.Count == 0 || copy[0].Data.Count == 0)
                         {
-                            //Print out record;
+                            Console.WriteLine("The Databse is empty. There is nothing to display.");
                         }
+                        else
+                        {
+                            int rec = TryToAskQuestion(string.Format("Please insert the number of top records to display out of {0}", copy.Data.Count), copy.Data.Count);
+                            Console.BackgroundColor = ConsoleColor.DarkRed;
+                            Console.ForegroundColor = ConsoleColor.White;
+                            List<string> ColumnHeadings = copy.sColumnHeadings();
+                            Console.Write("ID\t");
+                            for (int r = 0; r < ColumnHeadings.Count; r++)
+                                Console.Write(ColumnHeadings[r] + "\t");
+                            Console.ResetColor();
+
+                            //LEAVE THIS ALONE!!!!
+                            Console.WriteLine();
+
+                            for (int RecordNum = 0; RecordNum < rec /*Number of records in database*/; RecordNum++)
+                            {
+                                //display current record
+
+                                List<string> RecordElements = copy.sRecord(RecordNum);
+                                Console.BackgroundColor = ConsoleColor.Gray;
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write(RecordNum + "\t");
+                                for (int i = 0; i < RecordElements.Count; i++)
+                                {
+                                    Console.Write(RecordElements[i] + "\t");
+                                }
+                                Console.ResetColor();
+
+                                //LEAVE THIS ALONE!!!!
+                                Console.WriteLine();
+                            }
+                        }
+                        Console.WriteLine("Press any key when you are done");
+                        Console.ReadKey();
+                        Console.Clear();
                         #endregion
                         break;
                     case 3:
@@ -177,7 +224,7 @@ namespace Databaser
                 Console.BackgroundColor = ConsoleColor.DarkRed;
                 Console.ForegroundColor = ConsoleColor.White;
                 List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
-
+                Console.Write("ID\t");
                 for (int r = 0; r < ColumnHeadings.Count; r++)
                     Console.Write(ColumnHeadings[r] + "\t");
                 Console.ResetColor();
@@ -192,7 +239,7 @@ namespace Databaser
                     List<string> RecordElements = TheDatabase.sRecord(RecordNum);
                     Console.BackgroundColor = ConsoleColor.Gray;
                     Console.ForegroundColor = ConsoleColor.White;
-
+                    Console.Write(RecordNum + "\t");
                     for (int i = 0; i < RecordElements.Count; i++)
                     {
                         Console.Write(RecordElements[i] + "\t");
@@ -203,6 +250,9 @@ namespace Databaser
                     Console.WriteLine();
                 }
             }
+            Console.WriteLine("Press any key when you are done");
+            Console.ReadKey();
+            Console.Clear();
         }
         public Database Load_Database()
         {
@@ -447,10 +497,10 @@ namespace Databaser
                 switch (response)
                 {
                     case "0":
-                        RecordEditor();
+                        if (RecordEditor()) break;
                         break;
                     case "1":
-                        ColumnEditor();
+                        if (ColumnEditor()) break;
                         break;
                     case "2":
                         break;
@@ -462,11 +512,13 @@ namespace Databaser
             while (response != "0" && response != "1" && response != "2");
 
         }
-        public void RecordEditor()
+        public bool RecordEditor()
         {
+            Console.Clear();
             Console.WriteLine("Welcome to the Record Editor!");
             Console.WriteLine("Please enter the corresponding menu number for the desired type:");
             int res = TryToAskQuestion("0 - Edit Record\n1 - Add Record\n2 - Delete Record\n3 - Return To Menu", 3);
+            Console.Clear();
             switch (res)
             {
                 case 0:
@@ -499,18 +551,31 @@ namespace Databaser
                     {
                         Console.WriteLine("Sorry. You must have at least one Column to add a record");
                     }
+                    Console.WriteLine("Press any key...");
+                    Console.ReadKey();
+                    Console.Clear();
                     break;
                 case 2:
-                    //Del record
+                    if (TheDatabase.HasARecord)
+                    {
+                        View_EntireDatabase();
+                        TheDatabase.RemoveEntry(TryToAskQuestion("Please insert the ID of the item you want to delete", TheDatabase[0].Data.Count - 1));
+                    }
+                    else Console.WriteLine("There are no records to delete");
+                    Console.WriteLine("Press any key...");
+                    Console.ReadKey();
+                    Console.Clear();
                     break;
                 case 3:
-                    //back
+                    return true;
                     break;
             }
+            return false;
         }
 
-        public void ColumnEditor()
+        public bool ColumnEditor()
         {
+            Console.Clear();
             Console.WriteLine("Welcome to the Column Editor!");
             Console.WriteLine("Please enter the corresponding menu number for the desired type:");
             int res = TryToAskQuestion("0 - Edit Column\n1 - Add Column\n2 - Delete Column\n3 - Return To Menu", 3);
@@ -521,14 +586,28 @@ namespace Databaser
                     break;
                 case 1:
                     Create_Column();
+                    Console.Clear();
                     break;
                 case 2:
-                    //Del Column
+                    if (TheDatabase.HasAColumn)
+                    {
+                        Console.WriteLine("Please insert the column number to delete from the following:");
+                        for (int col = 0; col < TheDatabase.Data.Count; col++)
+                        {
+                            Console.WriteLine($"{col} - {TheDatabase[col].Name}");
+                        }
+                        TheDatabase.Data.RemoveAt(TryToAskQuestion("", TheDatabase.Data.Count - 1));
+                    }
+                    else Console.WriteLine("There are no columns to delete");
+                    Console.WriteLine("Press any key...");
+                    Console.ReadKey();
+                    Console.Clear();
                     break;
                 case 3:
-                    //back
+                    return true;
                     break;
             }
+            return false;
         }
     }
     #endregion
@@ -818,6 +897,14 @@ namespace Databaser
                 ToReturn.Add(this.Data[i].Name);
             }
             return ToReturn;
+        }
+
+        public void RemoveEntry(int v)
+        {
+            foreach (var item in Data)
+            {
+                item.Data.RemoveAt(v);
+            }
         }
 
         [Serializable]
