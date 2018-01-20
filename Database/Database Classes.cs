@@ -423,11 +423,13 @@ namespace Databaser
                     else
                     {
                         Console.WriteLine("Input was invalid, please try again.");
+                        confirmation = Console.ReadLine();
                     }
                 }
                 while (confirmation != "yes" && confirmation != "no");
                 if (confirmation == "yes") break;
             } while (true);
+            newDatabase.FilePath = Database.FolderPath + "\\" + newDatabase.FilePath;
             newDatabase.DateOfLastSave = Converter.StringToByte(DateTime.Now.ToString(), typeof(DateTime));
             return newDatabase;
         }
@@ -663,7 +665,9 @@ namespace Databaser
         public void SaveDatabase()
         {
             DateOfLastSave = Converter.StringToByte((Convert.ToString(DateTime.Now)), typeof(DateTime));
-            BinaryWriter binaryWriter = new BinaryWriter(new FileStream(FilePath, FileMode.Truncate));
+            BinaryWriter binaryWriter;
+            if (!File.Exists(FilePath)) { binaryWriter = new BinaryWriter(new FileStream(FilePath, FileMode.Create)); }
+            else binaryWriter = new BinaryWriter(new FileStream(FilePath, FileMode.Truncate));
             binaryWriter.Write(FormatID);
             binaryWriter.Write((byte)Data.Count);
             foreach (var col in Data)
