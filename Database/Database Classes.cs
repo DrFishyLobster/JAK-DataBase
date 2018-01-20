@@ -37,7 +37,7 @@ namespace Databaser
                         if (TheDatabase == null) bts = true;
                         break;
                     case 1:
-                        //NewDataBase
+                        TheDatabase = AskNewDatabase();
                         break;
                     case 2:
                         o = false;
@@ -381,36 +381,49 @@ namespace Databaser
 
                 newDatabase.FileName = newDatabaseName;
 
-                Console.WriteLine("Input a file path to store the new database: ");
+                Console.WriteLine("Input a file name to store the new database: ");
                 string newFilePath = Console.ReadLine();
-
-                if (File.Exists(newFilePath))
+                if (!newFilePath.Contains(".bin")) newFilePath += ".bin";
+                try
                 {
-                    newDatabase.FilePath = newFilePath + "\\" + newDatabaseName + ".bin";
+                    if (!File.Exists(Database.FolderPath + "\\" + newFilePath))
+                    {
+                        newDatabase.FilePath = newFilePath;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid Path ... Reprompting");
+                        continue;
+                    }
                 }
-                else
+                catch
                 {
-                    Console.WriteLine("Input is an invalid file path.");
+                    Console.WriteLine("Invalid Path ... Reprompting");
                     continue;
                 }
 
                 Console.WriteLine("To confirm that {0} is your new database's name and {1} is the file path where you would like to store the databse, type 'yes' or 'no': ", newDatabaseName, newFilePath);
                 string confirmation = Console.ReadLine();
-                if (confirmation == "yes")
+                do
                 {
-                    Console.WriteLine("The new database has successfully been created");
-                    break;
+                    if (confirmation == "yes")
+                    {
+                        Console.WriteLine("The new database has successfully been created");
+                        break;
+                    }
+                    else if (confirmation == "no")
+                    {
+                        Console.WriteLine("Please try again.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Input was invalid, please try again.");
+                    }
                 }
-                else if (confirmation == "no")
-                {
-                    Console.WriteLine("Please try again.");
-                }
-                else
-                {
-                    Console.WriteLine("Input was invalid, please try again.");
-                }
+                while (confirmation != "yes" && confirmation != "no");
+                if (confirmation == "yes") break;
             } while (true);
-
+            newDatabase.DateOfLastSave = Converter.StringToByte(DateTime.Now.ToString(), typeof(DateTime));
             return newDatabase;
         }
 
