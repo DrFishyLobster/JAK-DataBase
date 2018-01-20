@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.AccessControl;
 using System.Text;
 namespace Databaser
 {
@@ -18,7 +19,7 @@ namespace Databaser
         }
         public DatabaseManager()
         {
-            if (Directory.GetDirectories(Database.FolderPath).Length == 0)//If the JAK folder doesn’t exist on the comp, create one
+            if (!Directory.Exists(Database.FolderPath))
             {
                 Directory.CreateDirectory(Database.FolderPath);
             }
@@ -30,16 +31,16 @@ namespace Databaser
                 int res = TryToAskQuestion("0.Load Database\n1.New Database\n2.Close", 2);
                 switch (res)
                 {
-                    case 2:
-                        o = false;
-                        break;
                     case 0:
 
-                        //LoadDataBase
+                        TheDatabase = Load_Database();
                         if (TheDatabase == null) bts = true;
                         break;
                     case 1:
                         //NewDataBase
+                        break;
+                    case 2:
+                        o = false;
                         break;
 
                 }
@@ -48,7 +49,7 @@ namespace Databaser
                 {
                     bool o2 = true;
                     Console.WriteLine($"You are running JAK Database Solutions\nWelcome to {TheDatabase.FileName}!" +
-                        $"\nThe last edit was made {Converter.ByteToString(TheDatabase.DateOfLastSave, typeof(DateTime))}.\n");
+                        $"\nThe last edit was made {LastSave}.\n");
                     #region Level 2
                     while (o2)
                     {
@@ -204,17 +205,17 @@ namespace Databaser
             string[] DbPaths = AvailblDbPaths();
             for (int NumOfDbs = 0; NumOfDbs < DbPaths.Length; NumOfDbs++)
                 Console.WriteLine((NumOfDbs + 1) + ". " + DbPaths[NumOfDbs]);
-            Console.WriteLine("\nIf you wouldn’t like to open any of these and would like to return to the main menu, enter ‘close’");
+            Console.WriteLine("\nIf you wouldn’t like to open any of these and would like to return to the main menu, type anything else");
             Console.WriteLine("Pick the menu number of the database that you’d like to load: ");
             string Entry = Console.ReadLine();
-            if (Entry == "close") return null;
-            int Choice = int.Parse(Entry) - 1;
-            string path = DbPaths[Choice];
-            Database.LoadDatabase(path);
+            int Choice;
+            if (!Int32.TryParse(Entry, out Choice) || DbPaths.Length < Choice || Choice <= 0) return null;
+            string path = DbPaths[--Choice];
+            return Database.LoadDatabase(path);
         }
         string[] AvailblDbPaths()
         {
-            string[] AllBins = Directory.GetFiles(Database.FolderPath, "*.bin");
+            return Directory.GetFiles(Database.FolderPath, "*.bin");
         }
         string GetFileName(string EnteredPath)
         {
@@ -223,33 +224,44 @@ namespace Databaser
             if (EnteredPath.Length < 13 || EnteredPath.Split(new char[] { EnteredPath.ToCharArray()[12] })[0] != Database.FolderPath)//checking if folderpath is included in the entered directory of not
                 FilePath = Path.Combine(Database.FolderPath, EnteredPath);
             //FilePath is now in correct format to be used by functions
+            #region to delete
+            //BinaryReader binaryReader = new BinaryReader(new FileStream(FilePath, FileMode.Open));
 
-            BinaryReader binaryReader = new BinaryReader(new FileStream(FilePath, FileMode.Open));
+            ////Checks to see if in correct format
+            //if (binaryReader.BaseStream.Length < 8) return ":";
+            //else
+            //{
+            //    try
+            //    {
+            //        binaryReader.ReadUInt64();
+            //    }
+            //    catch
+            //    {
+            //        return "\\";
+            //    }
+            //}
 
-            //Checks to see if in correct format
-            if (binaryReader.BaseStream.Length < 8) return ":";
-            else
+            ////Reads the correct amount of bytes to finally reach the filename
+            //byte CCount = binaryReader.ReadByte();
+            //for (int col = 0; col < CCount; col++)
+            //{
+            //    binaryReader.ReadByte();
+            //    binaryReader.ReadNextRecord(typeof(String));
+            //}
+            //binaryReader.ReadNextRecord(typeof(DateTime));
+
+            //return Converter.ByteToString(binaryReader.ReadNextRecord(typeof(string)), typeof(string));
+            #endregion
+            Database database;
+            try
             {
-                try
-                {
-                    binaryReader.ReadUInt64();
-                }
-                catch
-                {
-                    return "\\";
-                }
+                database = Database.LoadDatabase(FilePath);
             }
-
-            //Reads the correct amount of bytes to finally reach the filename
-            byte CCount = binaryReader.ReadByte();
-            for (int col = 0; col < CCount; col++)
+            catch
             {
-                binaryReader.ReadByte();
-                binaryReader.ReadNextRecord(typeof(String));
+                return "\\";
             }
-            binaryReader.ReadNextRecord(typeof(DateTime));
-
-            return Converter.ByteToString(binaryReader.ReadNextRecord(typeof(string)), typeof(string));
+            return database.FileName;
         }
         public void Create_Column()
         {
@@ -519,7 +531,7 @@ namespace Databaser
     {
         public List<Column> Data = new List<Column>();
         public byte[] DateOfLastSave;
-        public static string FolderPath = @"C:\Users\JAK";
+        public static string FolderPath = @"C:\Users\User\Documents\JAK";
         public string FilePath = "NameOfDatabase.bin";
         public string FileName = "TestFile";
         const byte ETX = 3;  //byte	00000011	ETX end of text
