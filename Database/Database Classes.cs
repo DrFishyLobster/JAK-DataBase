@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+<<<<<<< HEAD
 using System.Runtime.Remoting.Messaging;
+=======
+using System.Security.AccessControl;
+>>>>>>> 6b4efeb64fc7ca5d63657d708fc8aaffff328001
 using System.Text;
 namespace Databaser
 {
@@ -19,31 +23,34 @@ namespace Databaser
         }
         public DatabaseManager()
         {
-
+            if (!Directory.Exists(Database.FolderPath))
+            {
+                Directory.CreateDirectory(Database.FolderPath);
+            }
             bool o = true;
+            bool bts = false;
             #region Level 1
             while (o)
             {
                 int res = TryToAskQuestion("0.Load Database\n1.New Database\n2.Close", 2);
                 switch (res)
                 {
-                    case 2:
-                        o = false;
-                        break;
                     case 0:
-                        //LoadDataBase
-                        if (TheDatabase == null) o = false;
+
+                        TheDatabase = Load_Database();
+                        if (TheDatabase == null) bts = true;
                         break;
                     case 1:
                         //NewDataBase
                         break;
 
                 }
-                if (!o) break;
+                if (bts) { bts = false; continue; }
                 if (res == 0 || res == 1)
                 {
                     bool o2 = true;
-                    //Display Welcome Information
+                    Console.WriteLine($"You are running JAK Database Solutions\nWelcome to {TheDatabase.FileName}!" +
+                        $"\nThe last edit was made {LastSave}.\n");
                     #region Level 2
                     while (o2)
                     {
@@ -57,7 +64,7 @@ namespace Databaser
                                 //EDIT,ADD,REMOVE
                                 break;
                             case 2:
-
+                                QueryCopyOfDatabase();
                                 break;
                             case 3:
                                 TheDatabase.SaveDatabase();
@@ -88,6 +95,79 @@ namespace Databaser
             return res;
 
         }
+        public void QueryCopyOfDatabase()
+        {
+            Database copy = TheDatabase.CopyDatabase();
+            bool o = true;
+            #region Level 3
+            while (o)
+            {
+                int res = TryToAskQuestion("0.Sort\n1.Filter\n2.Display\n3.Save File\n4.Replace Database\n5.Return to Menu", 6);
+                switch (res)
+                {
+                    case 0:
+                        #region Sorter
+                        for (int col = 0; col < copy.Data.Count; col++)
+                        {
+                            Console.WriteLine($"{col}.{copy[col].Name}");
+                        }
+                        int column = TryToAskQuestion("", copy.Data.Count);
+                        copy.ApplyPattern(copy[column].GenerateSortPattern((SortStyle)
+                            TryToAskQuestion("0.Ascending\n1.Descending", 2)));
+                        #endregion
+                        break;
+                    case 1:
+                        #region Filterer
+                        for (int col = 0; col < copy.Data.Count; col++)
+                        {
+                            Console.WriteLine($"{col}.{copy[col].Name}");
+                        }
+                        int columnfilter = TryToAskQuestion("", copy.Data.Count);
+                        FilterStyle res2 = (FilterStyle)TryToAskQuestion("0.Equal To\n1.Greater Than Or Equal To\n2.Less Than Or Equal To\n3.Greater Than\n4.Less Than", 5);
+                        Console.WriteLine("Please insert your comparetor");
+                        byte[] input = RequestData(copy[columnfilter].type);
+                        copy.ApplyPattern(copy[columnfilter].GenerateFilterPattern((FilterStyle)res, new Record(input, copy[columnfilter].type)));
+                        #endregion
+                        break;
+                    case 2:
+                        #region Display
+                        int res3 = TryToAskQuestion("Please insert the how many of the top elements you want?", copy.Data.Count);
+                        for (int rec = 0; rec < res3; rec++)
+                        {
+                            //Print out record;
+                        }
+                        #endregion
+                        break;
+                    case 3:
+                        #region Save File
+                        //KARAN
+                        #endregion
+                        break;
+                    case 4:
+                        #region Replace Database
+                        TheDatabase = copy;
+                        Console.WriteLine("Database replaced");
+                        #endregion
+                        break;
+                    case 5:
+                        o = false;
+                        break;
+
+                }
+            }
+            #endregion
+        }
+
+        private byte[] RequestData(Type type)
+        {
+            byte[] output;
+            while (!Converter.TryParseToByte(Console.ReadLine(), type, out output))
+            {
+                Console.WriteLine("Invalid Input, Reprompting...");
+            }
+            return output;
+        }
+
         public void View_EntireDatabase()
         {
 
@@ -97,7 +177,7 @@ namespace Databaser
 
             for (int r = 0; r < ColumnHeadings.Count; r++)
                 Console.Write(ColumnHeadings[r] + "\t");
-                Console.ResetColor();
+            Console.ResetColor();
 
             //LEAVE THIS ALONE!!!!
             Console.WriteLine();
@@ -119,6 +199,70 @@ namespace Databaser
                 //LEAVE THIS ALONE!!!!
                 Console.WriteLine();
             }
+        }
+        public Database Load_Database()
+        {
+            Console.WriteLine("Here are the databases on this computer\n");
+            string[] DbPaths = AvailblDbPaths();
+            for (int NumOfDbs = 0; NumOfDbs < DbPaths.Length; NumOfDbs++)
+                Console.WriteLine((NumOfDbs + 1) + ". " + DbPaths[NumOfDbs]);
+            Console.WriteLine("\nIf you wouldn’t like to open any of these and would like to return to the main menu, type anything else");
+            Console.WriteLine("Pick the menu number of the database that you’d like to load: ");
+            string Entry = Console.ReadLine();
+            int Choice;
+            if (!Int32.TryParse(Entry, out Choice) || DbPaths.Length < Choice || Choice <= 0) return null;
+            string path = DbPaths[--Choice];
+            return Database.LoadDatabase(path);
+        }
+        string[] AvailblDbPaths()
+        {
+            return Directory.GetFiles(Database.FolderPath, "*.bin");
+        }
+        string GetFileName(string EnteredPath)
+        {
+            if (!EnteredPath.Contains(".bin")) EnteredPath += ".bin";
+            string FilePath = EnteredPath;
+            if (EnteredPath.Length < 13 || EnteredPath.Split(new char[] { EnteredPath.ToCharArray()[12] })[0] != Database.FolderPath)//checking if folderpath is included in the entered directory of not
+                FilePath = Path.Combine(Database.FolderPath, EnteredPath);
+            //FilePath is now in correct format to be used by functions
+            #region to delete
+            //BinaryReader binaryReader = new BinaryReader(new FileStream(FilePath, FileMode.Open));
+
+            ////Checks to see if in correct format
+            //if (binaryReader.BaseStream.Length < 8) return ":";
+            //else
+            //{
+            //    try
+            //    {
+            //        binaryReader.ReadUInt64();
+            //    }
+            //    catch
+            //    {
+            //        return "\\";
+            //    }
+            //}
+
+            ////Reads the correct amount of bytes to finally reach the filename
+            //byte CCount = binaryReader.ReadByte();
+            //for (int col = 0; col < CCount; col++)
+            //{
+            //    binaryReader.ReadByte();
+            //    binaryReader.ReadNextRecord(typeof(String));
+            //}
+            //binaryReader.ReadNextRecord(typeof(DateTime));
+
+            //return Converter.ByteToString(binaryReader.ReadNextRecord(typeof(string)), typeof(string));
+            #endregion
+            Database database;
+            try
+            {
+                database = Database.LoadDatabase(FilePath);
+            }
+            catch
+            {
+                return "\\";
+            }
+            return database.FileName;
         }
         public void Create_Column()
         {
@@ -238,36 +382,49 @@ namespace Databaser
 
                 newDatabase.FileName = newDatabaseName;
 
-                Console.WriteLine("Input a file path to store the new database: ");
+                Console.WriteLine("Input a file name to store the new database: ");
                 string newFilePath = Console.ReadLine();
-
-                if (File.Exists(newFilePath))
+                if (!newFilePath.Contains(".bin")) newFilePath += ".bin";
+                try
                 {
-                    newDatabase.FilePath = newFilePath + "\\" + newDatabaseName + ".bin";
+                    if (!File.Exists(Database.FolderPath + "\\" + newFilePath))
+                    {
+                        newDatabase.FilePath = newFilePath;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid Path ... Reprompting");
+                        continue;
+                    }
                 }
-                else
+                catch
                 {
-                    Console.WriteLine("Input is an invalid file path.");
+                    Console.WriteLine("Invalid Path ... Reprompting");
                     continue;
                 }
 
                 Console.WriteLine("To confirm that {0} is your new database's name and {1} is the file path where you would like to store the databse, type 'yes' or 'no': ", newDatabaseName, newFilePath);
                 string confirmation = Console.ReadLine();
-                if (confirmation == "yes")
+                do
                 {
-                    Console.WriteLine("The new database has successfully been created");
-                    break;
+                    if (confirmation == "yes")
+                    {
+                        Console.WriteLine("The new database has successfully been created");
+                        break;
+                    }
+                    else if (confirmation == "no")
+                    {
+                        Console.WriteLine("Please try again.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Input was invalid, please try again.");
+                    }
                 }
-                else if (confirmation == "no")
-                {
-                    Console.WriteLine("Please try again.");
-                }
-                else
-                {
-                    Console.WriteLine("Input was invalid, please try again.");
-                }
+                while (confirmation != "yes" && confirmation != "no");
+                if (confirmation == "yes") break;
             } while (true);
-
+            newDatabase.DateOfLastSave = Converter.StringToByte(DateTime.Now.ToString(), typeof(DateTime));
             return newDatabase;
         }
 
@@ -298,10 +455,23 @@ namespace Databaser
     {
         public Type type;
         public byte[] Data;
+        public Record()
+        {
+
+        }
         public Record(byte[] d, Type t)
         {
             Data = d;
             type = t;
+        }
+        public Record CopyRecord()
+        {
+            Record output = new Record();
+            output.type = type;
+            byte[] temp = new byte[Data.Length];
+            Array.Copy(Data, temp, Data.Length);
+            output.Data = temp;
+            return output;
         }
         public int CompareTo(Record other)
         {
@@ -397,7 +567,34 @@ namespace Databaser
             }
             return output;
         }
-
+        public List<int> GenerateFilterPattern(FilterStyle filterStyle, Record Comparison)
+        {
+            List<int> output = new List<int>();
+            for (int item = 0; item < Data.Count; item++)
+            {
+                if (Comparison.CompareTo(Data[item]) == 0 && (filterStyle == FilterStyle.Equal
+                    || filterStyle == FilterStyle.GreaterThanOrEqual || filterStyle == FilterStyle.LessThanOrEqual))
+                    output.Add(item);
+                else if (Comparison.CompareTo(Data[item]) > 0 && (filterStyle == FilterStyle.GreaterThan || filterStyle == FilterStyle.GreaterThanOrEqual))
+                    output.Add(item);
+                else if (Comparison.CompareTo(Data[item]) < 0 && (filterStyle == FilterStyle.LessThan || filterStyle == FilterStyle.LessThanOrEqual))
+                    output.Add(item);
+            }
+            return output;
+        }
+        public Column CopyColumn()
+        {
+            Column output = new Column();
+            output.type = type;
+            output.Name = Name;
+            List<Record> temp = new List<Record>();
+            foreach (var item in Data)
+            {
+                temp.Add(item.CopyRecord());
+            }
+            output.Data = temp;
+            return output;
+        }
         public Record this[int index]
         {
             get { return Data[index]; }
@@ -408,12 +605,13 @@ namespace Databaser
 
     #region Database Constructs
     public enum SortStyle { Ascending, Descending };
+    public enum FilterStyle { Equal, GreaterThanOrEqual, LessThanOrEqual, GreaterThan, LessThan }
     public class Database
     {
         public List<Column> Data = new List<Column>();
         public byte[] DateOfLastSave;
-        public const string FolderPath = ""; // to Compelte
-        public string FilePath = "";
+        public static string FolderPath = @"C:\Users\User\Documents\JAK";
+        public string FilePath = "NameOfDatabase.bin";
         public string FileName = "TestFile";
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
@@ -426,7 +624,7 @@ namespace Databaser
         public static Database LoadDatabase(string FilePath)
         {
             if (!FilePath.Contains(".bin")) FilePath += ".bin";
-            BinaryReader binaryReader = new BinaryReader(new FileStream(FilePath, FileMode.Open));
+            BinaryReader binaryReader = new BinaryReader(new FileStream(Path.Combine(FolderPath, FilePath), FileMode.Open));
 
             //Checks to see if in correct format
             if (binaryReader.BaseStream.Length < 8) throw new NotValidFormatException("Less than 8 bytes");
@@ -495,6 +693,20 @@ namespace Databaser
                 }
                 Data[col].Data = temp;
             }
+        }
+        public Database CopyDatabase()
+        {
+            Database output = new Database();
+            output.DateOfLastSave = DateOfLastSave;
+            output.FileName = FileName;
+            output.FilePath = FilePath;
+            List<Column> temp = new List<Column>();
+            foreach (var item in Data)
+            {
+                temp.Add(item.CopyColumn());
+            }
+            output.Data = temp;
+            return output;
         }
 
         public List<string> sRecord(int RecordNumber_startingat0)
