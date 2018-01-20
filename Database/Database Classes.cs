@@ -562,7 +562,7 @@ namespace Databaser
             if (type.Equals(typeof(string)))
             {
                 UTF8Encoding encoder = new UTF8Encoding();
-                return encoder.GetString(Data, 0, Data.Length - 1).CompareTo(encoder.GetString(other.Data, 0, Data.Length - 1));
+                return encoder.GetString(Data, 0, Data.Length - 1).CompareTo(encoder.GetString(other.Data, 0, other.Data.Length - 1));
             }
             else if (type.Equals(typeof(byte)))
             {
@@ -659,9 +659,9 @@ namespace Databaser
                 if (Comparison.CompareTo(Data[item]) == 0 && (filterStyle == FilterStyle.Equal
                     || filterStyle == FilterStyle.GreaterThanOrEqual || filterStyle == FilterStyle.LessThanOrEqual))
                     output.Add(item);
-                else if (Comparison.CompareTo(Data[item]) > 0 && (filterStyle == FilterStyle.GreaterThan || filterStyle == FilterStyle.GreaterThanOrEqual))
+                else if (Comparison.CompareTo(Data[item]) < 0 && (filterStyle == FilterStyle.GreaterThan || filterStyle == FilterStyle.GreaterThanOrEqual))
                     output.Add(item);
-                else if (Comparison.CompareTo(Data[item]) < 0 && (filterStyle == FilterStyle.LessThan || filterStyle == FilterStyle.LessThanOrEqual))
+                else if (Comparison.CompareTo(Data[item]) > 0 && (filterStyle == FilterStyle.LessThan || filterStyle == FilterStyle.LessThanOrEqual))
                     output.Add(item);
             }
             return output;
@@ -1002,11 +1002,11 @@ namespace Databaser
             }
             else if (type.Equals(typeof(byte)))
             {
-                return BitConverter.GetBytes(byte.Parse(s));
+                return new byte[] { byte.Parse(s) };
             }
             else if (type.Equals(typeof(sbyte)))
             {
-                return BitConverter.GetBytes(sbyte.Parse(s));
+                return new byte[] { (byte)sbyte.Parse(s) };
             }
             else if (type.Equals(typeof(Int16)))
             {
