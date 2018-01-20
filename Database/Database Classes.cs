@@ -20,6 +20,7 @@ namespace Databaser
         {
 
             bool o = true;
+            bool bts = false;
             #region Level 1
             while (o)
             {
@@ -30,15 +31,16 @@ namespace Databaser
                         o = false;
                         break;
                     case 0:
+
                         //LoadDataBase
-                        if (TheDatabase == null) o = false;
+                        if (TheDatabase == null) bts = true;
                         break;
                     case 1:
                         //NewDataBase
                         break;
 
                 }
-                if (!o) break;
+                if (bts) { bts = false; continue; }
                 if (res == 0 || res == 1)
                 {
                     bool o2 = true;
