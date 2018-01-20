@@ -1,13 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-<<<<<<< HEAD
-// HEAD
-using System.Runtime.Remoting.Messaging;
-using System.Security.AccessControl;
-// 6b4efeb64fc7ca5d63657d708fc8aaffff328001
-=======
->>>>>>> b348b2e9f9ed78032e01d86d56ef3851ee2878c2
 using System.Text;
 namespace Databaser
 {
@@ -66,7 +59,7 @@ namespace Databaser
                                 View_EntireDatabase();
                                 break;
                             case 1:
-                                //EDIT,ADD,REMOVE
+                                MasterEditor();
                                 break;
                             case 2:
                                 QueryCopyOfDatabase();
@@ -294,8 +287,8 @@ namespace Databaser
     6 - Integer
     7 - Positive Long Integer
     8 - Long Integer
-    9 - Decimal/Fraction
-    10 - Long Decimal/Fraction.
+    9 - Decimal
+    10 - Long Decimal.
     11 - Date-Time");
                 while (true)
                 {
@@ -445,41 +438,73 @@ namespace Databaser
         {
             Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
     0 - Edit Records
-    1 - Edit Columns");
-            string repsonse = Console.ReadLine();
-            switch (repsonse)
+    1 - Edit Columns
+    2 - Return to Main Menu");
+            string response;
+            do
             {
-                case "0":
-                    RecordEditor();
-                    break;
-                case "1":
-                    ColumnEditor();
-                    break;
-                default:
-                    Console.WriteLine("Invalid input.");
-                    break;
+                response = Console.ReadLine();
+                switch (response)
+                {
+                    case "0":
+                        RecordEditor();
+                        break;
+                    case "1":
+                        ColumnEditor();
+                        break;
+                    case "2":
+                        break;
+                    default:
+                        Console.WriteLine("Invalid input.");
+                        break;
+                }
             }
+            while (response != "0" && response != "1" && response != "2");
 
         }
-
         public void RecordEditor()
         {
             Console.WriteLine("Welcome to the Record Editor!");
-            Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
-    0 - Edit a Record
-    1 - Create a Record
-    2 - Delete a Record");
-            string input = Console.ReadLine();
-            switch (input)
+            Console.WriteLine("Please enter the corresponding menu number for the desired type:");
+            int res = TryToAskQuestion("0 - Edit Record\n1 - Add Record\n2 - Delete Record\n3 - Return To Menu", 3);
+            switch (res)
             {
-                case "0":
+                case 0:
+                    //Edit record
                     break;
-                case "1":
+                case 1:
+                    if (TheDatabase.HasAColumn)
+                    {
+                        Console.WriteLine("Please add data for each required value:");
+                        for (int col = 0; col < TheDatabase.Data.Count; col++)
+                        {
+                            do
+                            {
+                                Console.Write($"{TheDatabase[col].Name} of type {TheDatabase[col].type.ToString()}:");
+                                byte[] tempdat;
+                                if (!Converter.TryParseToByte(Console.ReadLine(), TheDatabase[col].type, out tempdat))
+                                {
+                                    Console.WriteLine("Invalid Input...Reprompting");
+                                }
+                                else
+                                {
+                                    TheDatabase[col].Data.Add(new Record(tempdat, TheDatabase[col].type));
+                                    break;
+                                }
+                            } while (true);
+
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Sorry. You must have at least one Column to add a record");
+                    }
                     break;
-                case "2":
+                case 2:
+                    //Del record
                     break;
-                default:
-                    Console.WriteLine("Invalid input.");
+                case 3:
+                    //back
                     break;
             }
         }
@@ -487,21 +512,21 @@ namespace Databaser
         public void ColumnEditor()
         {
             Console.WriteLine("Welcome to the Column Editor!");
-            Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
-    0 - Edit Column Name
-    1 - Create a Column
-    2 - Delete a Column");
-            string input = Console.ReadLine();
-            switch (input)
+            Console.WriteLine("Please enter the corresponding menu number for the desired type:");
+            int res = TryToAskQuestion("0 - Edit Column\n1 - Add Column\n2 - Delete Column\n3 - Return To Menu", 3);
+            switch (res)
             {
-                case "0":
+                case 0:
+                    //Edit Column
                     break;
-                case "1":
+                case 1:
+                    Create_Column();
                     break;
-                case "2":
+                case 2:
+                    //Del Column
                     break;
-                default:
-                    Console.WriteLine("Invalid input.");
+                case 3:
+                    //back
                     break;
             }
         }
@@ -675,6 +700,8 @@ namespace Databaser
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
 
+        public bool HasAColumn { get { return Data.Count > 0; } }
+        public bool HasARecord { get { return HasAColumn && Data[0].Data.Count > 0; } }
         /// <summary>
         /// Loads a Database from a binary file
         /// </summary>
