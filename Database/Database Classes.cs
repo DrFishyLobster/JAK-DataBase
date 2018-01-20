@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 namespace Databaser
 {
@@ -270,7 +271,24 @@ namespace Databaser
             return newDatabase;
         }
 
-
+        public void MasterEditor()
+        {
+            Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
+    0 - Save
+    1 - Edit Record");
+            string repsonse = Console.ReadLine();
+            switch (repsonse)
+            {
+                case "0":
+                    break;
+                case "1":
+                    break;
+                case "2":
+                    break;
+                case "3":
+                    break;
+            }
+        }
     }
     #endregion
 
