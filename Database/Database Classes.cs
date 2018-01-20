@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-<<<<<<< HEAD
-using System.Runtime.Remoting.Messaging;
-=======
-using System.Security.AccessControl;
->>>>>>> 6b4efeb64fc7ca5d63657d708fc8aaffff328001
 using System.Text;
 namespace Databaser
 {
