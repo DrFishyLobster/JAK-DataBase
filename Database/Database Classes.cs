@@ -1,6 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+<<<<<<< HEAD
+// HEAD
+using System.Runtime.Remoting.Messaging;
+using System.Security.AccessControl;
+// 6b4efeb64fc7ca5d63657d708fc8aaffff328001
+=======
+>>>>>>> b348b2e9f9ed78032e01d86d56ef3851ee2878c2
 using System.Text;
 namespace Databaser
 {
@@ -437,10 +444,33 @@ namespace Databaser
         public void MasterEditor()
         {
             Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
-    0 - Save
-    1 - Edit Record");
+    0 - Edit Records
+    1 - Edit Columns");
             string repsonse = Console.ReadLine();
             switch (repsonse)
+            {
+                case "0":
+                    RecordEditor();
+                    break;
+                case "1":
+                    ColumnEditor();
+                    break;
+                default:
+                    Console.WriteLine("Invalid input.");
+                    break;
+            }
+
+        }
+
+        public void RecordEditor()
+        {
+            Console.WriteLine("Welcome to the Record Editor!");
+            Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
+    0 - Edit a Record
+    1 - Create a Record
+    2 - Delete a Record");
+            string input = Console.ReadLine();
+            switch (input)
             {
                 case "0":
                     break;
@@ -448,7 +478,30 @@ namespace Databaser
                     break;
                 case "2":
                     break;
-                case "3":
+                default:
+                    Console.WriteLine("Invalid input.");
+                    break;
+            }
+        }
+
+        public void ColumnEditor()
+        {
+            Console.WriteLine("Welcome to the Column Editor!");
+            Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
+    0 - Edit Column Name
+    1 - Create a Column
+    2 - Delete a Column");
+            string input = Console.ReadLine();
+            switch (input)
+            {
+                case "0":
+                    break;
+                case "1":
+                    break;
+                case "2":
+                    break;
+                default:
+                    Console.WriteLine("Invalid input.");
                     break;
             }
         }
