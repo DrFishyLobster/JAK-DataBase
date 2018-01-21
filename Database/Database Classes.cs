@@ -148,7 +148,7 @@ namespace Databaser
                         }
                         else
                         {
-                            int rec = TryToAskQuestion(string.Format("Please insert the number of top records to display out of {0}", copy.Data.Count), copy.Data.Count);
+                            int rec = TryToAskQuestion(string.Format("Please insert the number of top records to display out of {0}", copy.Data[0].Data.Count), copy.Data[0].Data.Count);
                             Console.BackgroundColor = ConsoleColor.DarkRed;
                             Console.ForegroundColor = ConsoleColor.White;
                             List<string> ColumnHeadings = copy.sColumnHeadings();
@@ -327,19 +327,10 @@ namespace Databaser
             {
                 Console.WriteLine("What would you like to name this field?");
                 iName = Console.ReadLine();
-                Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
-    0 - Text
-    1 - Positive Byte
-    2 - Byte
-    3 - Positive Short Integer
-    4 - Short Integer
-    5 - Positive Integer
-    6 - Integer
-    7 - Positive Long Integer
-    8 - Long Integer
-    9 - Decimal
-    10 - Long Decimal.
-    11 - Date-Time");
+                for (int pro = 0; pro < Converter.types.Length; pro++)
+                {
+                    Console.Write($"{pro} - {Converter.types[pro].TypeName()}");
+                }
                 while (true)
                 {
                     try
@@ -532,7 +523,7 @@ namespace Databaser
                         {
                             do
                             {
-                                Console.Write($"{TheDatabase[col].Name} of type {TheDatabase[col].type.ToString()}:");
+                                Console.Write($"{TheDatabase[col].Name} of type {TheDatabase[col].type.TypeName()}:");
                                 byte[] tempdat;
                                 if (!Converter.TryParseToByte(Console.ReadLine(), TheDatabase[col].type, out tempdat))
                                 {
@@ -998,7 +989,58 @@ namespace Databaser
                 throw new NotImplementedException();
             }
         }
+        public static string TypeName(this Type type)
+        {
 
+            if (type.Equals(typeof(string))){
+                return "String";
+            }
+            else if (type.Equals(typeof(byte)))
+            {
+                return "Unsigned Byte";
+            }
+            else if (type.Equals(typeof(sbyte)))
+            {
+                return "Signed Byte";
+            }
+            else if (type.Equals(typeof(Int16)))
+            {
+                return "Signed Short";
+            }
+            else if (type.Equals(typeof(UInt16)))
+            {
+                return "Unsigned Short";
+            }
+            else if (type.Equals(typeof(Int32)))
+            {
+                return "Signed Integer";
+            }
+            else if (type.Equals(typeof(UInt32)))
+            {
+                return "Unsigned Integer";
+            }
+            else if (type.Equals(typeof(Int64)))
+            {
+                return "Signed Long";
+            }
+            else if (type.Equals(typeof(UInt64)))
+            {
+                return "Unsigned Long";
+            }
+            else if (type.Equals(typeof(Single)))
+            {
+                return "Float";
+            }
+            else if (type.Equals(typeof(Double)))
+            {
+                return "Double";
+            }
+            else if (type.Equals(typeof(DateTime)))
+            {
+                return "Date Time";
+            }
+            return "Unsupported Type";
+        }
 
         public static Type ByteToType(byte B)
         {
@@ -1059,7 +1101,7 @@ namespace Databaser
             }
             else if (type.Equals(typeof(DateTime)))
             {
-                return string.Format("{0}/{1}/{2} {3}:{4}:{5}", B[0], B[1], BitConverter.ToUInt16(new byte[] { B[2], B[3] }, 0), B[4], B[5], B[6]);
+                return string.Format("{0:00}/{1:00}/{2:0000} {3:00}:{4:00}:{5:00}", B[0], B[1], BitConverter.ToUInt16(new byte[] { B[2], B[3] }, 0), B[4], B[5], B[6]);
 
             }
             else
