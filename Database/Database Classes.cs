@@ -513,8 +513,101 @@ namespace Databaser
             switch (res)
             {
                 case 0:
-                    //Edit record
+                    #region Edit Record
+                    if (TheDatabase.HasARecord)
+                    {
+                        Console.BackgroundColor = ConsoleColor.DarkRed;
+                        Console.ForegroundColor = ConsoleColor.White;
+                        List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
+                        Console.Write("ID\t");
+                        for (int r = 0; r < ColumnHeadings.Count; r++)
+                            Console.Write(ColumnHeadings[r] + "\t");
+                        Console.ResetColor();
+
+                        //LEAVE THIS ALONE!!!!
+                        Console.WriteLine();
+
+                        for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
+                        {
+                            //display current record
+
+                            List<string> RecordElements = TheDatabase.sRecord(RecordNum);
+                            Console.BackgroundColor = ConsoleColor.Gray;
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.Write(RecordNum + "\t");
+                            for (int i = 0; i < RecordElements.Count; i++)
+                            {
+                                Console.Write(RecordElements[i] + "\t");
+                            }
+                            Console.ResetColor();
+
+                            //LEAVE THIS ALONE!!!!
+                            Console.WriteLine();
+                        }
+                        int rec = TryToAskQuestion("Please insert the ID of the item you want to edit", TheDatabase[0].Data.Count - 1);
+                        switch (TryToAskQuestion("0 - Edit all Record\n1 - Edit a field of Record", 1))
+                        {
+                            case 0:
+                                Console.WriteLine("Please add data for each required value:");
+                                for (int col = 0; col < TheDatabase.Data.Count; col++)
+                                {
+                                    do
+                                    {
+                                        Console.Write($"{TheDatabase[col].Name} of type {TheDatabase[col].type.TypeName()}:");
+                                        byte[] tempdat0;
+                                        if (!Converter.TryParseToByte(Console.ReadLine(), TheDatabase[col].type, out tempdat0))
+                                        {
+                                            Console.WriteLine("Invalid Input...Reprompting");
+                                        }
+                                        else
+                                        {
+                                            TheDatabase[col].Data[rec] = new Record(tempdat0, TheDatabase[col].type);
+                                            break;
+                                        }
+                                    } while (true);
+
+                                }
+                                Console.WriteLine("Record Replaced");
+                                Console.WriteLine("Press any key...");
+                                Console.ReadKey();
+                                Console.Clear();
+                                break;
+                            case 1:
+                                for (int col = 0; col < TheDatabase.Data.Count; col++)
+                                {
+                                    Console.WriteLine($"{col} - {TheDatabase[col].Name}");
+                                }
+                                int colToEdit = TryToAskQuestion("Please insert the ID of the column to edit", TheDatabase.Data.Count - 1);
+                                do
+                                {
+                                    Console.Write($"{TheDatabase[colToEdit].Name} of type {TheDatabase[colToEdit].type.TypeName()}:");
+                                    byte[] tempdat;
+                                    if (!Converter.TryParseToByte(Console.ReadLine(), TheDatabase[colToEdit].type, out tempdat))
+                                    {
+                                        Console.WriteLine("Invalid Input...Reprompting");
+                                    }
+                                    else
+                                    {
+                                        TheDatabase[colToEdit].Data[rec] = (new Record(tempdat, TheDatabase[colToEdit].type));
+                                        break;
+                                    }
+                                } while (true);
+                                Console.WriteLine("You have edited the record.");
+                                Console.WriteLine("Press any key...");
+                                Console.ReadKey();
+                                Console.Clear();
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("You do not have a record to edit");
+                        Console.WriteLine("Press any key...");
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
                     break;
+                #endregion
                 case 1:
                     if (TheDatabase.HasAColumn)
                     {
@@ -992,7 +1085,8 @@ namespace Databaser
         public static string TypeName(this Type type)
         {
 
-            if (type.Equals(typeof(string))){
+            if (type.Equals(typeof(string)))
+            {
                 return "String";
             }
             else if (type.Equals(typeof(byte)))
