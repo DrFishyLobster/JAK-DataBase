@@ -57,7 +57,7 @@ namespace Databaser
                         switch (resl2)
                         {
                             case 0:
-                                View_EntireDatabase();
+                                View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
                                 Console.Clear();
                                 break;
                             case 1:
@@ -164,45 +164,8 @@ namespace Databaser
                     case 2:
                         #region Display
 
-                        if (copy.Data.Count == 0 || copy[0].Data.Count == 0)
-                        {
-                            Console.WriteLine("The Databse is empty. There is nothing to display.");
-                        }
-                        else
-                        {
-                            int rec = TryToAskQuestion(string.Format("Please insert the number of top records to display out of {0}", copy.Data[0].Data.Count), copy.Data[0].Data.Count);
-                            Console.BackgroundColor = ConsoleColor.DarkRed;
-                            Console.ForegroundColor = ConsoleColor.White;
-                            List<string> ColumnHeadings = copy.sColumnHeadings();
-                            Console.Write("ID\t");
-                            for (int r = 0; r < ColumnHeadings.Count; r++)
-                                Console.Write(ColumnHeadings[r] + "\t");
-                            Console.ResetColor();
-
-                            //LEAVE THIS ALONE!!!!
-                            Console.WriteLine();
-
-                            for (int RecordNum = 0; RecordNum < rec /*Number of records in database*/; RecordNum++)
-                            {
-                                //display current record
-
-                                List<string> RecordElements = copy.sRecord(RecordNum);
-                                Console.BackgroundColor = ConsoleColor.Gray;
-                                Console.ForegroundColor = ConsoleColor.White;
-                                Console.Write(RecordNum + "\t");
-                                for (int i = 0; i < RecordElements.Count; i++)
-                                {
-                                    Console.Write(RecordElements[i] + "\t");
-                                }
-                                Console.ResetColor();
-
-                                //LEAVE THIS ALONE!!!!
-                                Console.WriteLine();
-                            }
-                        }
-                        Console.WriteLine("Press any key when you are done");
-                        Console.ReadKey();
-                        Console.Clear();
+                        TryToAskQuestion("How many records would you like to view from the database?", copy.Data[0].Data.Count);
+                        View_Database(copy, int.Parse(Console.ReadLine()));
                         #endregion
                         break;
                     case 3:
@@ -262,31 +225,53 @@ namespace Databaser
             }
             return output;
         }
-
-        public void View_EntireDatabase()
+        /// <summary>
+        /// returns the length of the longest record of the column specified by the zero-based column number argument
+        /// </summary>
+        /// <param name="ColNum"></param>
+        /// <returns></returns>
+        public int LengthOfLongestRecord(int ColNum, Database DB)
         {
-            if (TheDatabase.Data.Count == 0 || TheDatabase[0].Data.Count == 0)
+            List<Record> Records = DB.Data[ColNum].Data;
+            int high = Converter.ByteToString(Records[0].Data, DB.Data[ColNum].type).Length;
+            for (int i = 1; i < Records.Count; i++)
+                if (Converter.ByteToString(Records[i].Data, DB.Data[ColNum].type).Length > high)
+                    high = Converter.ByteToString(Records[i].Data, DB.Data[ColNum].type).Length;
+            return high;
+        }
+        public void View_Database(Database DB_ToView, int NumberOfRecordsToDisplay)
+        {
+            if (NumberOfRecordsToDisplay > DB_ToView.Data[0].Data.Count /*Number of records in database*/)
             {
-                Console.WriteLine("The Databse is empty there is nothing to display.");
+                Console.WriteLine("There are less than " + NumberOfRecordsToDisplay + " records in the database... displaying entire database instead:\n\n");
+                NumberOfRecordsToDisplay = DB_ToView.Data[0].Data.Count /*Number of records in database*/;
+            }
+            if (DB_ToView.Data.Count == 0 || DB_ToView[0].Data.Count == 0)
+            {
+                Console.WriteLine("The Database is empty, there is nothing to display.");
             }
             else
             {
                 Console.BackgroundColor = ConsoleColor.DarkRed;
                 Console.ForegroundColor = ConsoleColor.White;
-                List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
+                List<string> ColumnHeadings = DB_ToView.sColumnHeadings();
                 Console.Write("ID\t");
                 for (int r = 0; r < ColumnHeadings.Count; r++)
-                    Console.Write(ColumnHeadings[r] + "\t");
+                {
+                    Console.Write(ColumnHeadings[r]);
+                    for (int j = 0; j < LengthOfLongestRecord(r, DB_ToView) - ColumnHeadings[r].Length + 1; j++)
+                        Console.Write(" ");
+                }
                 Console.ResetColor();
 
-                //LEAVE THIS ALONE!!!!
+                //BABY, BABY BABY, OOOHHHHHH  #jonahisabelieber
                 Console.WriteLine();
 
-                for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
+                for (int RecordNum = 0; RecordNum < NumberOfRecordsToDisplay; RecordNum++)
                 {
                     //display current record
 
-                    List<string> RecordElements = TheDatabase.sRecord(RecordNum);
+                    List<string> RecordElements = DB_ToView.sRecord(RecordNum);
                     Console.BackgroundColor = ConsoleColor.Gray;
                     Console.ForegroundColor = ConsoleColor.Black;
                     Console.Write(RecordNum + "\t");
