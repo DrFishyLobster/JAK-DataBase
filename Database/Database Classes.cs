@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+// HEAD
+// HEAD
+using System.Runtime.Remoting.Messaging;
 using System.Security.AccessControl;
+// 6b4efeb64fc7ca5d63657d708fc8aaffff328001
+// b348b2e9f9ed78032e01d86d56ef3851ee2878c2
 using System.Text;
 namespace Databaser
 {
@@ -20,15 +25,14 @@ namespace Databaser
         public DatabaseManager()
         {
             if (!Directory.Exists(Database.FolderPath))
-            {
                 Directory.CreateDirectory(Database.FolderPath);
-            }
             bool o = true;
             bool bts = false;
             #region Level 1
             while (o)
             {
                 int res = TryToAskQuestion("0.Load Database\n1.New Database\n2.Close", 2);
+                Console.Clear();
                 switch (res)
                 {
                     case 0:
@@ -37,7 +41,7 @@ namespace Databaser
                         if (TheDatabase == null) bts = true;
                         break;
                     case 1:
-                        //NewDataBase
+                        TheDatabase = AskNewDatabase();
                         break;
                     case 2:
                         o = false;
@@ -47,6 +51,7 @@ namespace Databaser
                 if (bts) { bts = false; continue; }
                 if (res == 0 || res == 1)
                 {
+                    Console.Clear();
                     bool o2 = true;
                     Console.WriteLine($"You are running JAK Database Solutions\nWelcome to {TheDatabase.FileName}!" +
                         $"\nThe last edit was made {LastSave}.\n");
@@ -54,20 +59,27 @@ namespace Databaser
                     while (o2)
                     {
                         int resl2 = TryToAskQuestion("0.Display\n1.Edit,Add,Remove\n2.Query\n3.Save\n4.Close", 4);
+                        Console.Clear();
                         switch (resl2)
                         {
                             case 0:
                                 View_EntireDatabase();
+                                Console.Clear();
                                 break;
                             case 1:
-                                //EDIT,ADD,REMOVE
+                                MasterEditor();
+                                Console.Clear();
                                 break;
                             case 2:
                                 QueryCopyOfDatabase();
+                                Console.Clear();
                                 break;
                             case 3:
                                 TheDatabase.SaveDatabase();
                                 Console.WriteLine("Save complete");
+                                Console.WriteLine("Press any key...");
+                                Console.ReadKey();
+                                Console.Clear();
                                 break;
                             case 4:
                                 o2 = false;
@@ -102,6 +114,7 @@ namespace Databaser
             while (o)
             {
                 int res = TryToAskQuestion("0.Sort\n1.Filter\n2.Display\n3.Save File\n4.Replace Database\n5.Return to Menu", 6);
+                Console.Clear();
                 switch (res)
                 {
                     case 0:
@@ -113,6 +126,7 @@ namespace Databaser
                         int column = TryToAskQuestion("", copy.Data.Count);
                         copy.ApplyPattern(copy[column].GenerateSortPattern((SortStyle)
                             TryToAskQuestion("0.Ascending\n1.Descending", 2)));
+                        Console.Clear();
                         #endregion
                         break;
                     case 1:
@@ -126,15 +140,51 @@ namespace Databaser
                         Console.WriteLine("Please insert your comparetor");
                         byte[] input = RequestData(copy[columnfilter].type);
                         copy.ApplyPattern(copy[columnfilter].GenerateFilterPattern((FilterStyle)res, new Record(input, copy[columnfilter].type)));
+                        Console.Clear();
                         #endregion
                         break;
                     case 2:
                         #region Display
-                        int res3 = TryToAskQuestion("Please insert the how many of the top elements you want?", copy.Data.Count);
-                        for (int rec = 0; rec < res3; rec++)
+
+                        if (copy.Data.Count == 0 || copy[0].Data.Count == 0)
                         {
-                            //Print out record;
+                            Console.WriteLine("The Databse is empty. There is nothing to display.");
                         }
+                        else
+                        {
+                            int rec = TryToAskQuestion(string.Format("Please insert the number of top records to display out of {0}", copy.Data[0].Data.Count), copy.Data[0].Data.Count);
+                            Console.BackgroundColor = ConsoleColor.DarkRed;
+                            Console.ForegroundColor = ConsoleColor.White;
+                            List<string> ColumnHeadings = copy.sColumnHeadings();
+                            Console.Write("ID\t");
+                            for (int r = 0; r < ColumnHeadings.Count; r++)
+                                Console.Write(ColumnHeadings[r] + "\t");
+                            Console.ResetColor();
+
+                            //LEAVE THIS ALONE!!!!
+                            Console.WriteLine();
+
+                            for (int RecordNum = 0; RecordNum < rec /*Number of records in database*/; RecordNum++)
+                            {
+                                //display current record
+
+                                List<string> RecordElements = copy.sRecord(RecordNum);
+                                Console.BackgroundColor = ConsoleColor.Gray;
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write(RecordNum + "\t");
+                                for (int i = 0; i < RecordElements.Count; i++)
+                                {
+                                    Console.Write(RecordElements[i] + "\t");
+                                }
+                                Console.ResetColor();
+
+                                //LEAVE THIS ALONE!!!!
+                                Console.WriteLine();
+                            }
+                        }
+                        Console.WriteLine("Press any key when you are done");
+                        Console.ReadKey();
+                        Console.Clear();
                         #endregion
                         break;
                     case 3:
@@ -169,40 +219,56 @@ namespace Databaser
 
         public void View_EntireDatabase()
         {
-
-            Console.BackgroundColor = ConsoleColor.DarkRed;
-            Console.ForegroundColor = ConsoleColor.White;
-            List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
-
-            for (int r = 0; r < ColumnHeadings.Count; r++)
-                Console.Write(ColumnHeadings[r] + "\t");
-            Console.ResetColor();
-
-            //LEAVE THIS ALONE!!!!
-            Console.WriteLine();
-
-            for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
+            if (TheDatabase.Data.Count == 0 || TheDatabase[0].Data.Count == 0)
             {
-                //display current record
-
-                List<string> RecordElements = TheDatabase.sRecord(RecordNum);
-                Console.BackgroundColor = ConsoleColor.Gray;
+                Console.WriteLine("The Databse is empty there is nothing to display.");
+            }
+            else
+            {
+                Console.BackgroundColor = ConsoleColor.DarkRed;
                 Console.ForegroundColor = ConsoleColor.White;
-
-                for (int i = 0; i < RecordElements.Count; i++)
-                {
-                    Console.Write(RecordElements[i] + "\t");
-                }
+                List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
+                Console.Write("ID\t");
+                for (int r = 0; r < ColumnHeadings.Count; r++)
+                    Console.Write(ColumnHeadings[r] + "\t");
                 Console.ResetColor();
 
                 //LEAVE THIS ALONE!!!!
                 Console.WriteLine();
+
+                for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
+                {
+                    //display current record
+
+                    List<string> RecordElements = TheDatabase.sRecord(RecordNum);
+                    Console.BackgroundColor = ConsoleColor.Gray;
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.Write(RecordNum + "\t");
+                    for (int i = 0; i < RecordElements.Count; i++)
+                    {
+                        Console.Write(RecordElements[i] + "\t");
+                    }
+                    Console.ResetColor();
+
+                    //LEAVE THIS ALONE!!!!
+                    Console.WriteLine();
+                }
             }
+            Console.WriteLine("Press any key when you are done");
+            Console.ReadKey();
+            Console.Clear();
         }
         public Database Load_Database()
         {
-            Console.WriteLine("Here are the databases on this computer\n");
             string[] DbPaths = AvailblDbPaths();
+            if (DbPaths.Length == 0)
+            {
+                Console.WriteLine("No databases were found on this device, press any key to go back to the main menu...");
+                Console.ReadKey();
+                Console.Clear();
+                return null;
+            }
+            Console.WriteLine("Here are the databases on this computer\n");
             for (int NumOfDbs = 0; NumOfDbs < DbPaths.Length; NumOfDbs++)
                 Console.WriteLine((NumOfDbs + 1) + ". " + DbPaths[NumOfDbs]);
             Console.WriteLine("\nIf you wouldn’t like to open any of these and would like to return to the main menu, type anything else");
@@ -244,19 +310,10 @@ namespace Databaser
             {
                 Console.WriteLine("What would you like to name this field?");
                 iName = Console.ReadLine();
-                Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
-    0 - Text
-    1 - Positive Byte
-    2 - Byte
-    3 - Positive Short Integer
-    4 - Short Integer
-    5 - Positive Integer
-    6 - Integer
-    7 - Positive Long Integer
-    8 - Long Integer
-    9 - Decimal/Fraction
-    10 - Long Decimal/Fraction.
-    11 - Date-Time");
+                for (int pro = 0; pro < Converter.types.Length; pro++)
+                {
+                    Console.Write($"{pro} - {Converter.types[pro].TypeName()}");
+                }
                 while (true)
                 {
                     try
@@ -304,7 +361,6 @@ namespace Databaser
             Console.ReadKey();
             return;
         }
-
         string TypeName(Type T)
         {
             switch (T.ToString())
@@ -337,8 +393,286 @@ namespace Databaser
                     return "general";//was thinking we could have a construct which allows a general field which can store many things at once... dont really know the use of it but i have to enter something in the default case otherwise all paths wouldn’t return a value
             }
         }
+        public Database AskNewDatabase()
+        {
+            Database newDatabase = new Database();
 
+            do
+            {
+                Console.WriteLine("Input a new database name: ");
+                string newDatabaseName = Console.ReadLine();
 
+                if (newDatabaseName.Contains("\\"))
+                {
+                    newDatabaseName.Replace("\\", "");
+                }
+
+                newDatabase.FileName = newDatabaseName;
+
+                Console.WriteLine("Input a file name to store the new database: ");
+                string newFilePath = Console.ReadLine();
+                if (!newFilePath.Contains(".bin")) newFilePath += ".bin";
+                try
+                {
+                    if (!File.Exists(Database.FolderPath + "\\" + newFilePath))
+                    {
+                        newDatabase.FilePath = newFilePath;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid Path ... Reprompting");
+                        continue;
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Invalid Path ... Reprompting");
+                    continue;
+                }
+
+                Console.WriteLine("To confirm that {0} is your new database's name and {1} is the file path where you would like to store the databse, type 'yes' or 'no': ", newDatabaseName, newFilePath);
+                string confirmation = Console.ReadLine();
+                do
+                {
+                    if (confirmation == "yes")
+                    {
+                        Console.WriteLine("The new database has successfully been created");
+                        break;
+                    }
+                    else if (confirmation == "no")
+                    {
+                        Console.WriteLine("Please try again.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Input was invalid, please try again.");
+                        confirmation = Console.ReadLine();
+                    }
+                }
+                while (confirmation != "yes" && confirmation != "no");
+                if (confirmation == "yes") break;
+            } while (true);
+            newDatabase.FilePath = Database.FolderPath + "\\" + newDatabase.FilePath;
+            newDatabase.DateOfLastSave = Converter.StringToByte(DateTime.Now.ToString(), typeof(DateTime));
+            return newDatabase;
+        }
+
+        public void MasterEditor()
+        {
+            Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
+    0 - Edit Records
+    1 - Edit Columns
+    2 - Return to Main Menu");
+            string response;
+            do
+            {
+                response = Console.ReadLine();
+                switch (response)
+                {
+                    case "0":
+                        if (RecordEditor()) break;
+                        break;
+                    case "1":
+                        if (ColumnEditor()) break;
+                        break;
+                    case "2":
+                        break;
+                    default:
+                        Console.WriteLine("Invalid input.");
+                        break;
+                }
+            }
+            while (response != "0" && response != "1" && response != "2");
+
+        }
+        public bool RecordEditor()
+        {
+            Console.Clear();
+            Console.WriteLine("Welcome to the Record Editor!");
+            Console.WriteLine("Please enter the corresponding menu number for the desired type:");
+            int res = TryToAskQuestion("0 - Edit Record\n1 - Add Record\n2 - Delete Record\n3 - Return To Menu", 3);
+            Console.Clear();
+            switch (res)
+            {
+                case 0:
+                    #region Edit Record
+                    if (TheDatabase.HasARecord)
+                    {
+                        Console.BackgroundColor = ConsoleColor.DarkRed;
+                        Console.ForegroundColor = ConsoleColor.White;
+                        List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
+                        Console.Write("ID\t");
+                        for (int r = 0; r < ColumnHeadings.Count; r++)
+                            Console.Write(ColumnHeadings[r] + "\t");
+                        Console.ResetColor();
+
+                        //LEAVE THIS ALONE!!!!
+                        Console.WriteLine();
+
+                        for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
+                        {
+                            //display current record
+
+                            List<string> RecordElements = TheDatabase.sRecord(RecordNum);
+                            Console.BackgroundColor = ConsoleColor.Gray;
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.Write(RecordNum + "\t");
+                            for (int i = 0; i < RecordElements.Count; i++)
+                            {
+                                Console.Write(RecordElements[i] + "\t");
+                            }
+                            Console.ResetColor();
+
+                            //LEAVE THIS ALONE!!!!
+                            Console.WriteLine();
+                        }
+                        int rec = TryToAskQuestion("Please insert the ID of the item you want to edit", TheDatabase[0].Data.Count - 1);
+                        switch (TryToAskQuestion("0 - Edit all Record\n1 - Edit a field of Record", 1))
+                        {
+                            case 0:
+                                Console.WriteLine("Please add data for each required value:");
+                                for (int col = 0; col < TheDatabase.Data.Count; col++)
+                                {
+                                    do
+                                    {
+                                        Console.Write($"{TheDatabase[col].Name} of type {TheDatabase[col].type.TypeName()}:");
+                                        byte[] tempdat0;
+                                        if (!Converter.TryParseToByte(Console.ReadLine(), TheDatabase[col].type, out tempdat0))
+                                        {
+                                            Console.WriteLine("Invalid Input...Reprompting");
+                                        }
+                                        else
+                                        {
+                                            TheDatabase[col].Data[rec] = new Record(tempdat0, TheDatabase[col].type);
+                                            break;
+                                        }
+                                    } while (true);
+
+                                }
+                                Console.WriteLine("Record Replaced");
+                                Console.WriteLine("Press any key...");
+                                Console.ReadKey();
+                                Console.Clear();
+                                break;
+                            case 1:
+                                for (int col = 0; col < TheDatabase.Data.Count; col++)
+                                {
+                                    Console.WriteLine($"{col} - {TheDatabase[col].Name}");
+                                }
+                                int colToEdit = TryToAskQuestion("Please insert the ID of the column to edit", TheDatabase.Data.Count - 1);
+                                do
+                                {
+                                    Console.Write($"{TheDatabase[colToEdit].Name} of type {TheDatabase[colToEdit].type.TypeName()}:");
+                                    byte[] tempdat;
+                                    if (!Converter.TryParseToByte(Console.ReadLine(), TheDatabase[colToEdit].type, out tempdat))
+                                    {
+                                        Console.WriteLine("Invalid Input...Reprompting");
+                                    }
+                                    else
+                                    {
+                                        TheDatabase[colToEdit].Data[rec] = (new Record(tempdat, TheDatabase[colToEdit].type));
+                                        break;
+                                    }
+                                } while (true);
+                                Console.WriteLine("You have edited the record.");
+                                Console.WriteLine("Press any key...");
+                                Console.ReadKey();
+                                Console.Clear();
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("You do not have a record to edit");
+                        Console.WriteLine("Press any key...");
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
+                    break;
+                #endregion
+                case 1:
+                    if (TheDatabase.HasAColumn)
+                    {
+                        Console.WriteLine("Please add data for each required value:");
+                        for (int col = 0; col < TheDatabase.Data.Count; col++)
+                        {
+                            do
+                            {
+                                Console.Write($"{TheDatabase[col].Name} of type {TheDatabase[col].type.TypeName()}:");
+                                byte[] tempdat;
+                                if (!Converter.TryParseToByte(Console.ReadLine(), TheDatabase[col].type, out tempdat))
+                                {
+                                    Console.WriteLine("Invalid Input...Reprompting");
+                                }
+                                else
+                                {
+                                    TheDatabase[col].Data.Add(new Record(tempdat, TheDatabase[col].type));
+                                    break;
+                                }
+                            } while (true);
+
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Sorry. You must have at least one Column to add a record");
+                    }
+                    Console.WriteLine("Press any key...");
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+                case 2:
+                    if (TheDatabase.HasARecord)
+                    {
+                        View_EntireDatabase();
+                        TheDatabase.RemoveEntry(TryToAskQuestion("Please insert the ID of the item you want to delete", TheDatabase[0].Data.Count - 1));
+                    }
+                    else Console.WriteLine("There are no records to delete");
+                    Console.WriteLine("Press any key...");
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+                case 3:
+                    return true;
+            }
+            return false;
+        }
+        public bool ColumnEditor()
+        {
+            Console.Clear();
+            Console.WriteLine("Welcome to the Column Editor!");
+            Console.WriteLine("Please enter the corresponding menu number for the desired type:");
+            int res = TryToAskQuestion("0 - Edit Column\n1 - Add Column\n2 - Delete Column\n3 - Return To Menu", 3);
+            switch (res)
+            {
+                case 0:
+                    //Edit Column
+                    break;
+                case 1:
+                    Create_Column();
+                    Console.Clear();
+                    break;
+                case 2:
+                    if (TheDatabase.HasAColumn)
+                    {
+                        Console.WriteLine("Please insert the column number to delete from the following:");
+                        for (int col = 0; col < TheDatabase.Data.Count; col++)
+                        {
+                            Console.WriteLine($"{col} - {TheDatabase[col].Name}");
+                        }
+                        TheDatabase.Data.RemoveAt(TryToAskQuestion("", TheDatabase.Data.Count - 1));
+                    }
+                    else Console.WriteLine("There are no columns to delete");
+                    Console.WriteLine("Press any key...");
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+                case 3:
+                    return true;
+                    break;
+            }
+            return false;
+        }
     }
     #endregion
 
@@ -371,7 +705,7 @@ namespace Databaser
             if (type.Equals(typeof(string)))
             {
                 UTF8Encoding encoder = new UTF8Encoding();
-                return encoder.GetString(Data, 0, Data.Length - 1).CompareTo(encoder.GetString(other.Data, 0, Data.Length - 1));
+                return encoder.GetString(Data, 0, Data.Length - 1).CompareTo(encoder.GetString(other.Data, 0, other.Data.Length - 1));
             }
             else if (type.Equals(typeof(byte)))
             {
@@ -444,7 +778,7 @@ namespace Databaser
 
             for (int endpos = output.Count - 1; endpos >= 1; endpos--)
             {
-                for (int pos = 0; pos < endpos - 1; pos++)
+                for (int pos = 0; pos < endpos; pos++)
                 {
                     int res = Data[output[pos]].CompareTo(Data[output[pos + 1]]);
                     if (sortStyle == SortStyle.Descending) res = -res;
@@ -468,9 +802,9 @@ namespace Databaser
                 if (Comparison.CompareTo(Data[item]) == 0 && (filterStyle == FilterStyle.Equal
                     || filterStyle == FilterStyle.GreaterThanOrEqual || filterStyle == FilterStyle.LessThanOrEqual))
                     output.Add(item);
-                else if (Comparison.CompareTo(Data[item]) > 0 && (filterStyle == FilterStyle.GreaterThan || filterStyle == FilterStyle.GreaterThanOrEqual))
+                else if (Comparison.CompareTo(Data[item]) < 0 && (filterStyle == FilterStyle.GreaterThan || filterStyle == FilterStyle.GreaterThanOrEqual))
                     output.Add(item);
-                else if (Comparison.CompareTo(Data[item]) < 0 && (filterStyle == FilterStyle.LessThan || filterStyle == FilterStyle.LessThanOrEqual))
+                else if (Comparison.CompareTo(Data[item]) > 0 && (filterStyle == FilterStyle.LessThan || filterStyle == FilterStyle.LessThanOrEqual))
                     output.Add(item);
             }
             return output;
@@ -503,12 +837,14 @@ namespace Databaser
     {
         public List<Column> Data = new List<Column>();
         public byte[] DateOfLastSave;
-        public static string FolderPath = @"C:\Users\User\Documents\JAK";
+        public static string FolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "JAK");
         public string FilePath = "NameOfDatabase.bin";
         public string FileName = "TestFile";
         const byte ETX = 3;  //byte	00000011	ETX end of text
         const ulong FormatID = 18263452859329828488L;
 
+        public bool HasAColumn { get { return Data.Count > 0; } }
+        public bool HasARecord { get { return HasAColumn && Data[0].Data.Count > 0; } }
         /// <summary>
         /// Loads a Database from a binary file
         /// </summary>
@@ -552,7 +888,9 @@ namespace Databaser
         public void SaveDatabase()
         {
             DateOfLastSave = Converter.StringToByte((Convert.ToString(DateTime.Now)), typeof(DateTime));
-            BinaryWriter binaryWriter = new BinaryWriter(new FileStream(FilePath, FileMode.Truncate));
+            BinaryWriter binaryWriter;
+            if (!File.Exists(FilePath)) { binaryWriter = new BinaryWriter(new FileStream(FilePath, FileMode.Create)); }
+            else binaryWriter = new BinaryWriter(new FileStream(FilePath, FileMode.Truncate));
             binaryWriter.Write(FormatID);
             binaryWriter.Write((byte)Data.Count);
             foreach (var col in Data)
@@ -623,6 +961,14 @@ namespace Databaser
                 ToReturn.Add(this.Data[i].Name);
             }
             return ToReturn;
+        }
+
+        public void RemoveEntry(int v)
+        {
+            foreach (var item in Data)
+            {
+                item.Data.RemoveAt(v);
+            }
         }
 
         [Serializable]
@@ -716,7 +1062,59 @@ namespace Databaser
                 throw new NotImplementedException();
             }
         }
+        public static string TypeName(this Type type)
+        {
 
+            if (type.Equals(typeof(string)))
+            {
+                return "String";
+            }
+            else if (type.Equals(typeof(byte)))
+            {
+                return "Unsigned Byte";
+            }
+            else if (type.Equals(typeof(sbyte)))
+            {
+                return "Signed Byte";
+            }
+            else if (type.Equals(typeof(Int16)))
+            {
+                return "Signed Short";
+            }
+            else if (type.Equals(typeof(UInt16)))
+            {
+                return "Unsigned Short";
+            }
+            else if (type.Equals(typeof(Int32)))
+            {
+                return "Signed Integer";
+            }
+            else if (type.Equals(typeof(UInt32)))
+            {
+                return "Unsigned Integer";
+            }
+            else if (type.Equals(typeof(Int64)))
+            {
+                return "Signed Long";
+            }
+            else if (type.Equals(typeof(UInt64)))
+            {
+                return "Unsigned Long";
+            }
+            else if (type.Equals(typeof(Single)))
+            {
+                return "Float";
+            }
+            else if (type.Equals(typeof(Double)))
+            {
+                return "Double";
+            }
+            else if (type.Equals(typeof(DateTime)))
+            {
+                return "Date Time";
+            }
+            return "Unsupported Type";
+        }
 
         public static Type ByteToType(byte B)
         {
@@ -777,7 +1175,7 @@ namespace Databaser
             }
             else if (type.Equals(typeof(DateTime)))
             {
-                return string.Format("{0}/{1}/{2} {3}:{4}:{5}", B[0], B[1], BitConverter.ToUInt16(new byte[] { B[2], B[3] }, 0), B[4], B[5], B[6]);
+                return string.Format("{0:00}/{1:00}/{2:0000} {3:00}:{4:00}:{5:00}", B[0], B[1], BitConverter.ToUInt16(new byte[] { B[2], B[3] }, 0), B[4], B[5], B[6]);
 
             }
             else
@@ -807,11 +1205,11 @@ namespace Databaser
             }
             else if (type.Equals(typeof(byte)))
             {
-                return BitConverter.GetBytes(byte.Parse(s));
+                return new byte[] { byte.Parse(s) };
             }
             else if (type.Equals(typeof(sbyte)))
             {
-                return BitConverter.GetBytes(sbyte.Parse(s));
+                return new byte[] { (byte)sbyte.Parse(s) };
             }
             else if (type.Equals(typeof(Int16)))
             {
