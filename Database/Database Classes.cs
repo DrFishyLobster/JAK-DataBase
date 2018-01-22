@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-// HEAD
-// HEAD
-using System.Runtime.Remoting.Messaging;
-using System.Security.AccessControl;
-// 6b4efeb64fc7ca5d63657d708fc8aaffff328001
-// b348b2e9f9ed78032e01d86d56ef3851ee2878c2
 using System.Text;
 namespace Databaser
 {
@@ -55,11 +49,11 @@ namespace Databaser
                 {
                     Console.Clear();
                     bool o2 = true;
-                    Console.WriteLine($"You are running JAK Database Solutions\nWelcome to {TheDatabase.FileName}!" +
-                        $"\nThe last edit was made {LastSave}.\n");
                     #region Level 2
                     while (o2)
                     {
+                        Console.WriteLine($"You are running JAK Database Solutions\nWelcome to {TheDatabase.FileName}!" +
+                        $"\nThe last edit was made {LastSave}.\n");
                         int resl2 = TryToAskQuestion("0.Display\n1.Edit,Add,Remove\n2.Query\n3.Save\n4.Close", 4);
                         Console.Clear();
                         switch (resl2)
