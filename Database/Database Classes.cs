@@ -288,34 +288,6 @@ namespace Databaser
             if (EnteredPath.Length < 13 || EnteredPath.Split(new char[] { EnteredPath.ToCharArray()[12] })[0] != Database.FolderPath)//checking if folderpath is included in the entered directory of not
                 FilePath = Path.Combine(Database.FolderPath, EnteredPath);
             //FilePath is now in correct format to be used by functions
-            #region to delete
-            //BinaryReader binaryReader = new BinaryReader(new FileStream(FilePath, FileMode.Open));
-
-            ////Checks to see if in correct format
-            //if (binaryReader.BaseStream.Length < 8) return ":";
-            //else
-            //{
-            //    try
-            //    {
-            //        binaryReader.ReadUInt64();
-            //    }
-            //    catch
-            //    {
-            //        return "\\";
-            //    }
-            //}
-
-            ////Reads the correct amount of bytes to finally reach the filename
-            //byte CCount = binaryReader.ReadByte();
-            //for (int col = 0; col < CCount; col++)
-            //{
-            //    binaryReader.ReadByte();
-            //    binaryReader.ReadNextRecord(typeof(String));
-            //}
-            //binaryReader.ReadNextRecord(typeof(DateTime));
-
-            //return Converter.ByteToString(binaryReader.ReadNextRecord(typeof(string)), typeof(string));
-            #endregion
             Database database;
             try
             {
@@ -387,7 +359,6 @@ namespace Databaser
             Console.ReadKey();
             return;
         }
-
         string TypeName(Type T)
         {
             switch (T.ToString())
