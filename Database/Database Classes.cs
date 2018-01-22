@@ -244,7 +244,7 @@ namespace Databaser
 
                     List<string> RecordElements = TheDatabase.sRecord(RecordNum);
                     Console.BackgroundColor = ConsoleColor.Gray;
-                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Black;
                     Console.Write(RecordNum + "\t");
                     for (int i = 0; i < RecordElements.Count; i++)
                     {
