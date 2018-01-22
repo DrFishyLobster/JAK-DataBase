@@ -132,10 +132,10 @@ namespace Databaser
                             Console.WriteLine($"{col}.{copy[col].Name}");
                         }
                         int columnfilter = TryToAskQuestion("", copy.Data.Count);
-                        FilterStyle res2 = (FilterStyle)TryToAskQuestion("0.Equal To\n1.Greater Than Or Equal To\n2.Less Than Or Equal To\n3.Greater Than\n4.Less Than", 5);
+                        FilterStyle res2 = (FilterStyle)TryToAskQuestion("0.Equal To\n1.Greater Than Or Equal To\n2.Less Than Or Equal To\n3.Greater Than\n4.Less Than\n5 Not Equal To", 5);
                         Console.WriteLine("Please insert your comparetor");
                         byte[] input = RequestData(copy[columnfilter].type);
-                        copy.ApplyPattern(copy[columnfilter].GenerateFilterPattern((FilterStyle)res, new Record(input, copy[columnfilter].type)));
+                        copy.ApplyPattern(copy[columnfilter].GenerateFilterPattern(res2, new Record(input, copy[columnfilter].type)));
                         Console.Clear();
                         #endregion
                         break;
@@ -329,7 +329,7 @@ namespace Databaser
                 iName = Console.ReadLine();
                 for (int pro = 0; pro < Converter.types.Length; pro++)
                 {
-                    Console.Write($"{pro} - {Converter.types[pro].TypeName()}");
+                    Console.WriteLine($"{pro} - {Converter.types[pro].TypeName()}");
                 }
                 while (true)
                 {
@@ -666,7 +666,24 @@ namespace Databaser
             switch (res)
             {
                 case 0:
-                    //Edit Column
+                    if (TheDatabase.HasAColumn)
+                    {
+                        for (int col = 0; col < TheDatabase.Data.Count; col++)
+                        {
+                            Console.WriteLine($"{col} - {TheDatabase[col]}");
+                        }
+                        int colToEdit = TryToAskQuestion("Please insert the column ID to edit", TheDatabase.Data.Count - 1);
+                        Console.Write("Please type the new name: ");
+                        TheDatabase[colToEdit].Name = Console.ReadLine();
+                        Console.WriteLine("There are no columns to delete");
+
+                    }
+                    else
+                        Console.WriteLine("There are no columns to delete");
+                    Console.WriteLine("Press any key...");
+                    Console.ReadKey();
+                    Console.Clear();
+
                     break;
                 case 1:
                     Create_Column();
@@ -826,6 +843,8 @@ namespace Databaser
                     output.Add(item);
                 else if (Comparison.CompareTo(Data[item]) > 0 && (filterStyle == FilterStyle.LessThan || filterStyle == FilterStyle.LessThanOrEqual))
                     output.Add(item);
+                else if (Comparison.CompareTo(Data[item]) != 0 && (filterStyle == FilterStyle.NotEqualTo))
+                    output.Add(item);
             }
             return output;
         }
@@ -852,7 +871,7 @@ namespace Databaser
 
     #region Database Constructs
     public enum SortStyle { Ascending, Descending };
-    public enum FilterStyle { Equal, GreaterThanOrEqual, LessThanOrEqual, GreaterThan, LessThan }
+    public enum FilterStyle { Equal, GreaterThanOrEqual, LessThanOrEqual, GreaterThan, LessThan, NotEqualTo }
     public class Database
     {
         public List<Column> Data = new List<Column>();
