@@ -57,6 +57,13 @@ namespace Databaser
                         switch (resl2)
                         {
                             case 0:
+                                if (TheDatabase.Data.Count == 0)
+                                {
+                                    Console.WriteLine("No columns have been added to this database yet, so there is nothing to view.\nPick another option\nPlease press any key to continue....");
+                                    Console.ReadKey();
+                                    Console.Clear();
+                                    break;
+                                }
                                 View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
                                 Console.Clear();
                                 break;
@@ -285,7 +292,7 @@ namespace Databaser
                     Console.WriteLine();
                 }
             }
-            Console.WriteLine("Press any key when you are done");
+            Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
             Console.Clear();
         }
@@ -529,34 +536,7 @@ namespace Databaser
                     #region Edit Record
                     if (TheDatabase.HasARecord)
                     {
-                        Console.BackgroundColor = ConsoleColor.DarkRed;
-                        Console.ForegroundColor = ConsoleColor.White;
-                        List<string> ColumnHeadings = TheDatabase.sColumnHeadings();
-                        Console.Write("ID\t");
-                        for (int r = 0; r < ColumnHeadings.Count; r++)
-                            Console.Write(ColumnHeadings[r] + "\t");
-                        Console.ResetColor();
-
-                        //LEAVE THIS ALONE!!!!
-                        Console.WriteLine();
-
-                        for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count /*Number of records in database*/; RecordNum++)
-                        {
-                            //display current record
-
-                            List<string> RecordElements = TheDatabase.sRecord(RecordNum);
-                            Console.BackgroundColor = ConsoleColor.Gray;
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.Write(RecordNum + "\t");
-                            for (int i = 0; i < RecordElements.Count; i++)
-                            {
-                                Console.Write(RecordElements[i] + "\t");
-                            }
-                            Console.ResetColor();
-
-                            //LEAVE THIS ALONE!!!!
-                            Console.WriteLine();
-                        }
+                        View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
                         int rec = TryToAskQuestion("Please insert the ID of the item you want to edit", TheDatabase[0].Data.Count - 1);
                         switch (TryToAskQuestion("0 - Edit all Record\n1 - Edit a field of Record", 1))
                         {
@@ -655,7 +635,7 @@ namespace Databaser
                 case 2:
                     if (TheDatabase.HasARecord)
                     {
-                        View_EntireDatabase();
+                        View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
                         TheDatabase.RemoveEntry(TryToAskQuestion("Please insert the ID of the item you want to delete", TheDatabase[0].Data.Count - 1));
                     }
                     else Console.WriteLine("There are no records to delete");
@@ -717,7 +697,6 @@ namespace Databaser
                     break;
                 case 3:
                     return true;
-                    break;
             }
             return false;
         }
