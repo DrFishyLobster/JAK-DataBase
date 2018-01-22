@@ -798,7 +798,7 @@ namespace Databaser
 
             for (int endpos = output.Count - 1; endpos >= 1; endpos--)
             {
-                for (int pos = 0; pos < endpos - 1; pos++)
+                for (int pos = 0; pos < endpos; pos++)
                 {
                     int res = Data[output[pos]].CompareTo(Data[output[pos + 1]]);
                     if (sortStyle == SortStyle.Descending) res = -res;
