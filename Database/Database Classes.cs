@@ -76,9 +76,9 @@ namespace Databaser
                                 Console.Clear();
                                 break;
                             case 3:
-                                if (TryToAskQuestion("Insert 0 for Save, 1 for Save as:", 1) == 1)                             
+                                if (TryToAskQuestion("Insert 0 for Save, 1 for Save as:", 1) == 1)
                                 {
-                                    
+
                                     Console.WriteLine("Input a file name to store the database: ");
                                     string newFilePath = Console.ReadLine();
                                     if (!newFilePath.Contains(".bin")) newFilePath += ".bin";
@@ -458,7 +458,7 @@ namespace Databaser
                     }
                     else
                     {
-                        Console.WriteLine("Invalid Path ... Reprompting");
+                        Console.WriteLine("File Already Exists ... Reprompting");
                         continue;
                     }
                 }
