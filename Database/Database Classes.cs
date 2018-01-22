@@ -25,9 +25,7 @@ namespace Databaser
         public DatabaseManager()
         {
             if (!Directory.Exists(Database.FolderPath))
-            {
                 Directory.CreateDirectory(Database.FolderPath);
-            }
             bool o = true;
             bool bts = false;
             #region Level 1
@@ -262,8 +260,15 @@ namespace Databaser
         }
         public Database Load_Database()
         {
-            Console.WriteLine("Here are the databases on this computer\n");
             string[] DbPaths = AvailblDbPaths();
+            if (DbPaths.Length == 0)
+            {
+                Console.WriteLine("No databases were found on this device, press any key to go back to the main menu...");
+                Console.ReadKey();
+                Console.Clear();
+                return null;
+            }
+            Console.WriteLine("Here are the databases on this computer\n");
             for (int NumOfDbs = 0; NumOfDbs < DbPaths.Length; NumOfDbs++)
                 Console.WriteLine((NumOfDbs + 1) + ". " + DbPaths[NumOfDbs]);
             Console.WriteLine("\nIf you wouldn’t like to open any of these and would like to return to the main menu, type anything else");
@@ -629,11 +634,9 @@ namespace Databaser
                     break;
                 case 3:
                     return true;
-                    break;
             }
             return false;
         }
-
         public bool ColumnEditor()
         {
             Console.Clear();
@@ -834,7 +837,7 @@ namespace Databaser
     {
         public List<Column> Data = new List<Column>();
         public byte[] DateOfLastSave;
-        public static string FolderPath = @"C:\Users\User\Documents\JAK";
+        public static string FolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "JAK");
         public string FilePath = "NameOfDatabase.bin";
         public string FileName = "TestFile";
         const byte ETX = 3;  //byte	00000011	ETX end of text
