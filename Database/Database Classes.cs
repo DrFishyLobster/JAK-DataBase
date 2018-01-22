@@ -69,6 +69,30 @@ namespace Databaser
                                 Console.Clear();
                                 break;
                             case 3:
+                                if (TryToAskQuestion("Insert 0 for Save, 1 for Save as:", 1) == 1)                             
+                                {
+                                    
+                                    Console.WriteLine("Input a file name to store the database: ");
+                                    string newFilePath = Console.ReadLine();
+                                    if (!newFilePath.Contains(".bin")) newFilePath += ".bin";
+                                    try
+                                    {
+                                        if (!File.Exists(Database.FolderPath + "\\" + newFilePath))
+                                        {
+                                            TheDatabase.FilePath = (Database.FolderPath + "\\" + newFilePath);
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Invalid Path ... Reprompting");
+                                            continue;
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        Console.WriteLine("Invalid Path ... Reprompting");
+                                        continue;
+                                    }
+                                }
                                 TheDatabase.SaveDatabase();
                                 Console.WriteLine("Save complete");
                                 Console.WriteLine("Press any key...");
@@ -183,7 +207,35 @@ namespace Databaser
                         break;
                     case 3:
                         #region Save File
-                        //KARAN
+                        if (TryToAskQuestion("Insert 0 for Save, 1 for Save as:", 1) == 1)
+                        {
+
+                            Console.WriteLine("Input a file name to store the database: ");
+                            string newFilePath = Console.ReadLine();
+                            if (!newFilePath.Contains(".bin")) newFilePath += ".bin";
+                            try
+                            {
+                                if (!File.Exists(Database.FolderPath + "\\" + newFilePath))
+                                {
+                                    copy.FilePath = (Database.FolderPath + "\\" + newFilePath);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Invalid Path ... Reprompting");
+                                    continue;
+                                }
+                            }
+                            catch
+                            {
+                                Console.WriteLine("Invalid Path ... Reprompting");
+                                continue;
+                            }
+                        }
+                        copy.SaveDatabase();
+                        Console.WriteLine("Save complete");
+                        Console.WriteLine("Press any key...");
+                        Console.ReadKey();
+                        Console.Clear();
                         #endregion
                         break;
                     case 4:
