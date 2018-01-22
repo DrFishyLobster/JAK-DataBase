@@ -304,7 +304,6 @@ namespace Databaser
             Console.ReadKey();
             return;
         }
-
         string TypeName(Type T)
         {
             switch (T.ToString())
