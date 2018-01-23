@@ -25,6 +25,7 @@ namespace Databaser
             #region Level 1
             while (o)
             {
+                Console.WriteLine("Hello and welcome to JAK Database! Pick one of the following to begin...:");//intro
                 int res = TryToAskQuestion("0.Load Database\n1.New Database\n2.Close", 2);
                 Console.Clear();
                 switch (res)
