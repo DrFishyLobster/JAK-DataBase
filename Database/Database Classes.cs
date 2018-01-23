@@ -36,7 +36,9 @@ namespace Databaser
                         if (TheDatabase == null) bts = true;
                         break;
                     case 1:
-                        TheDatabase = AskNewDatabase();
+                        int dec = TryToAskQuestion("Would you like to create a new database from an existing csv file or through our quick entry system? (1 for csv file/0 for quick entry)", 1);
+                        if (dec == 0) TheDatabase = AskNewDatabase();
+                        else //GetNewFromFile
                         break;
                     case 2:
                         o = false;
@@ -118,7 +120,6 @@ namespace Databaser
             }
             #endregion
         }
-
         public int TryToAskQuestion(string Q, int maxValue)
         {
             Console.WriteLine(Q);
@@ -915,6 +916,40 @@ namespace Databaser
             binaryReader.Close();
             return database;
         }
+        public void Read_csv_IntoDatabase()
+        {
+            string sPath;
+            do
+            {
+                Console.WriteLine("Please enter the file path to your csv file (right click on the file and click on properties to find it)");
+                sPath = Console.ReadLine();
+                string csvName = "";
+                if (!sPath.Contains(".csv"))
+                {
+                    Console.WriteLine("Please enter the file's name (if the path you entered contained the file's name, just press enter): ");
+                    csvName = Console.ReadLine();
+                }
+                if (!Directory.Exists((sPath = Path.Combine(sPath, csvName))))
+                    Console.Write("Sorry, invalid path. ");
+            } while (!Directory.Exists(sPath));
+            //sPath has now been validated and established to exist
+            string[] Lines = File.ReadAllLines(sPath);
+            string[,] Everything = new string[Lines[0].Split(',').Length, Lines.Length];
+            for (int i = 0; i < Lines.Length; i++)//for every line
+            {
+                for (int j = 0; j < Lines[i].Split(',').Length; j++)//for every record in the line
+                {
+                    //add it to everything
+                    Everything[j, i] = Lines[i].Split(',')[j];
+                }
+            }
+            //Everything - ready
+            for (int i = 0; i < Lines[0].Split(',').Length; i++)
+                Data.Add(new Column("", CPExtensionMethods.FindTypeOfColumn(Everything, i, Lines.Length)));
+            //Column types assigned
+            
+
+        }
         public void SaveDatabase()
         {
             DateOfLastSave = Converter.StringToByte((Convert.ToString(DateTime.Now)), typeof(DateTime));
@@ -1306,6 +1341,61 @@ namespace Databaser
             b.CopyTo(output, 0);
             output[b.Length] = b2;
             return output;
+        }/// <summary>
+         /// Returns the type of a column in Table. The column is specified by the zero-based value of ColumnNumber
+         /// </summary>
+         /// <param name=""></param>
+         /// <param name="ColumnNumber"></param>
+         /// <returns></returns>
+        public static Type FindTypeOfColumn(string[,] Table, int ColumnNumber, int NumOfRecords)
+        {
+            string[] ColSpecified = new string[NumOfRecords];
+            for (int i = 0; i < NumOfRecords; i++)
+                ColSpecified[i] = Table[ColumnNumber, i];
+            int highL = 0;
+            for (int i = 1; i < ColSpecified.Length; i++)
+                if (ColSpecified[i].Length >= highL) highL = i;
+            try
+            {
+                DateTime DT = Convert.ToDateTime(ColSpecified[highL]);
+                return typeof(DateTime);
+            }
+            catch
+            {
+                try
+                {
+                    UInt64 UI = Convert.ToUInt64(ColSpecified[highL]);
+                    return typeof(UInt64);
+                }
+                catch
+                {
+                    try
+                    {
+                        Int64 I = Convert.ToInt64(ColSpecified[highL]);
+                        return typeof(Int64);
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            double D = Convert.ToDouble(ColSpecified[highL]);
+                            return typeof(Double);
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                char c = Convert.ToChar(ColSpecified[highL]);
+                                return typeof(char);
+                            }
+                            catch
+                            {
+                                return typeof(string);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
