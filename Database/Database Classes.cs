@@ -681,7 +681,7 @@ namespace Databaser
                     {
                         for (int col = 0; col < TheDatabase.Data.Count; col++)
                         {
-                            Console.WriteLine($"{col} - {TheDatabase[col]}");
+                            Console.WriteLine($"{col} - {TheDatabase[col].Name}");
                         }
                         int colToEdit = TryToAskQuestion("Please insert the column ID to edit", TheDatabase.Data.Count - 1);
                         Console.Write("Please type the new name: ");
