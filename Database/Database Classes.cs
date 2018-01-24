@@ -965,8 +965,13 @@ namespace Databaser
             for (int i = 0; i < Lines[0].Split(',').Length; i++)
                 Data.Add(new Column("", CPExtensionMethods.FindTypeOfColumn(Everything, i, Lines.Length)));
             //Column types assigned
+<<<<<<< HEAD
 
 
+=======
+            
+
+>>>>>>> 9e4d0d42755b98ea0c40cbbc1c3155c6429d7e54
         }
         public void SaveDatabase()
         {
