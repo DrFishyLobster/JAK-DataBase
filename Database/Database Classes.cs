@@ -75,7 +75,16 @@ namespace Databaser
                                 Console.Clear();
                                 break;
                             case 2:
-                                QueryCopyOfDatabase();
+                                if (TheDatabase.HasARecord)
+                                {
+                                    QueryCopyOfDatabase();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("No columns have been added to this database yet, so there is nothing to view.\nPick another option");
+                                }
+                                Console.WriteLine("Press any key...");
+                                Console.ReadKey();
                                 Console.Clear();
                                 break;
                             case 3:
@@ -174,7 +183,7 @@ namespace Databaser
                         #region Display
 
 
-                        View_Database(copy, TryToAskQuestion("How many records would you like to view from the database?", copy.Data[0].Data.Count));
+                        View_Database(copy, TryToAskQuestion($"How many records would you like to view from the database out of {copy.Data[0].Data.Count}?", copy.Data[0].Data.Count));
                         #endregion
                         break;
                     case 3:
@@ -269,13 +278,15 @@ namespace Databaser
                 int maxwidth = 2;
                 maxwidth = 2 >= DB_ToView.Data.Count.ToString().Length ? 2 : DB_ToView.Data.Count.ToString().Length;
                 width.Add(maxwidth);
-                for (int col = 0; col < NumberOfRecordsToDisplay; col++)
+                for (int col = 0; col < ColumnHeadings.Count; col++)
                 {
                     maxwidth = DB_ToView[col].Name.Length;
-                    foreach (var item in DB_ToView[col].Data)
+                    for (int rec = 0; rec < NumberOfRecordsToDisplay; rec++)
                     {
-                        if (maxwidth < Converter.ByteToString(item.Data, item.type).Length)
-                            maxwidth = Converter.ByteToString(item.Data, item.type).Length;
+
+
+                        if (maxwidth < Converter.ByteToString(DB_ToView[col][rec].Data, DB_ToView[col][rec].type).Length)
+                            maxwidth = Converter.ByteToString(DB_ToView[col][rec].Data, DB_ToView[col][rec].type).Length;
                     }
                     width.Add(maxwidth);
                 }
@@ -312,6 +323,7 @@ namespace Databaser
                     Console.WriteLine();
                 }
             }
+            Console.ResetColor();
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
             Console.Clear();
@@ -399,22 +411,70 @@ namespace Databaser
                 if (TheDatabase.Data[0].Data.Count > 0)//Database isn’t empty
                 {
                     Console.Clear();
+                    #region Column Width
+                    List<int> width = new List<int>();
+                    int maxwidth = 2;
+                    maxwidth = 2 >= TheDatabase.Data.Count.ToString().Length ? 2 : TheDatabase.Data.Count.ToString().Length;
+                    width.Add(maxwidth);
+                    for (int col = 0; col < TheDatabase.Data.Count; col++)
+                    {
+                        maxwidth = TheDatabase[col].Name.Length;
+                        foreach (var item in TheDatabase[col].Data)
+                        {
+                            if (maxwidth < Converter.ByteToString(item.Data, item.type).Length)
+                                maxwidth = Converter.ByteToString(item.Data, item.type).Length;
+                        }
+                        width.Add(maxwidth);
+                    }
+
+
+                    #endregion
+
                     Console.WriteLine("There are existing records in the database for which the new field must be filled out.\nPlease fill out the following information for the records already in the database:\n");
                     List<string> ColHeadings = TheDatabase.sColumnHeadings();   //Displaying column titles
-                    for (int t = 0; t < ColHeadings.Count; t++)     //
-                        Console.Write(ColHeadings[t] + "\t");       //column titles displayed
-                    Console.Write("\n");//next line
-                    List<Record> NewColsRecords = new List<Record>();
-                    for (int i = 0; i < TheDatabase.Data[0].Data.Count; i++)//for every record, display existent data, then ask for additional data to be added to the new column
+                    string nameToPrint = "ID" + " ".Times(width[0] - 2) + "|";
+                    Console.Write(nameToPrint);
+                    for (int r = 0; r < ColHeadings.Count; r++)
                     {
-                        List<string> CurrRecord = TheDatabase.sRecord(i);
-                        for (int t = 0; t < CurrRecord.Count; t++)
-                            Console.Write(CurrRecord[t] + "\t");
-                        NewColsRecords.Add(new Record(Converter.StringToByte(Console.ReadLine(), itype), itype));
-                    } //after this loop, the list of records for the new column is ready
-                    TheDatabase.Data[TheDatabase.Data.Count - 1].Data = NewColsRecords;
+
+                        Console.Write(ColHeadings[r] + " ".Times(width[r + 1] - ColHeadings[r].Length) + "|");
+
+                    }       //column titles displayed
+                    Console.Write("\n");//next line
+                    for (int RecordNum = 0; RecordNum < TheDatabase.Data[0].Data.Count; RecordNum++)
+                    {
+                        //display current record
+
+
+                        Console.BackgroundColor = ConsoleColor.Gray;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.Write(RecordNum + " ".Times(width[0] - RecordNum.ToString().Length) + "|");
+                        //Console.Write(RecordNum + " ".Times(width[0] - RecordNum.ToString().Length) + "|");
+                        byte[] tempB;
+                        for (int r = 0; r < TheDatabase.Data.Count - 1; r++)
+                        {
+                            Console.Write(Converter.ByteToString(TheDatabase[r][RecordNum].Data, TheDatabase[r][RecordNum].type)
+                                + " ".Times(width[r + 1] - Converter.ByteToString(TheDatabase[r][RecordNum].Data, TheDatabase[r][RecordNum].type).Length) + "|");
+
+                        }
+                        while (!Converter.TryParseToByte(Console.ReadLine(), itype, out tempB))
+                        {
+                            Console.WriteLine("Invalid Input...Reprompting");
+                            Console.Write(RecordNum + " ".Times(width[0] - RecordNum.ToString().Length) + "|");
+                            for (int r = 0; r < TheDatabase.Data.Count - 1; r++)
+                            {
+                                Console.Write(Converter.ByteToString(TheDatabase[r][RecordNum].Data, TheDatabase[r][RecordNum].type)
+                                    + " ".Times(width[r + 1] - Converter.ByteToString(TheDatabase[r][RecordNum].Data, TheDatabase[r][RecordNum].type).Length) + "|");
+
+                            }
+                        }
+                        TheDatabase[TheDatabase.Data.Count - 1].Data.Add(new Record(tempB, itype));
+
+                    }
+
                 }
             }
+            Console.ResetColor();
             Console.WriteLine("Your new column has now been added to the database!\tPress any key to continue...");
             Console.ReadKey();
             return;
@@ -686,7 +746,7 @@ namespace Databaser
                         int colToEdit = TryToAskQuestion("Please insert the column ID to edit", TheDatabase.Data.Count - 1);
                         Console.Write("Please type the new name: ");
                         TheDatabase[colToEdit].Name = Console.ReadLine();
-                        Console.WriteLine("There are no columns to delete");
+                        Console.WriteLine("Column Edited");
 
                     }
                     else
@@ -965,13 +1025,7 @@ namespace Databaser
             for (int i = 0; i < Lines[0].Split(',').Length; i++)
                 Data.Add(new Column("", CPExtensionMethods.FindTypeOfColumn(Everything, i, Lines.Length)));
             //Column types assigned
-<<<<<<< HEAD
 
-
-=======
-            
-
->>>>>>> 9e4d0d42755b98ea0c40cbbc1c3155c6429d7e54
         }
         public void SaveDatabase()
         {
