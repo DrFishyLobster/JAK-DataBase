@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 namespace Databaser
 {
 
     #region Database Manager
     public class DatabaseManager
     {
-        Database TheDatabase;
+        Database TheDatabase = new Database();
         public string LastSave
         {
             get
@@ -26,7 +27,7 @@ namespace Databaser
             while (o)
             {
                 Console.WriteLine("Hello and welcome to JAK Database! Pick one of the following to begin...:");//intro
-                int res = TryToAskQuestion("0.Load Database\n1.New Database\n2.Close", 2);
+                int res = CPExtensionMethods.TryToAskQuestion("0.Load Database\n1.New Database\n2.Import Database From .csv File\n3.Close", 3);
                 Console.Clear();
                 switch (res)
                 {
@@ -36,17 +37,27 @@ namespace Databaser
                         if (TheDatabase == null) bts = true;
                         break;
                     case 1:
+<<<<<<< HEAD
+                        int dec = CPExtensionMethods.TryToAskQuestion("Would you like to create a new database from an existing csv file or through our quick entry system? (1 for csv file/0 for quick entry)", 1);
+                        TheDatabase = AskNewDatabase();
+=======
                         int dec = TryToAskQuestion("Would you like to create a new database from an existing csv file or through our quick entry system? (1 for csv file/0 for quick entry)", 1);
                         if (dec == 0) TheDatabase = AskNewDatabase();
                         //else //GetNewFromFile
+>>>>>>> master
                         break;
                     case 2:
+                        TheDatabase.Read_csv_IntoDatabase();
+                        Console.Clear();
+                        View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
+                        break;
+                    case 3:
                         o = false;
                         break;
 
                 }
                 if (bts) { bts = false; continue; }
-                if (res == 0 || res == 1)
+                if (res == 0 || res == 1 || res == 2)
                 {
                     Console.Clear();
                     bool o2 = true;
@@ -55,7 +66,7 @@ namespace Databaser
                     {
                         Console.WriteLine($"You are running JAK Database Solutions\nWelcome to {TheDatabase.FileName}!" +
                         $"\nThe last edit was made {LastSave}.\n");
-                        int resl2 = TryToAskQuestion("0.Display\n1.Edit,Add,Remove\n2.Query\n3.Save\n4.Close", 4);
+                        int resl2 = CPExtensionMethods.TryToAskQuestion("0.Display\n1.Edit,Add,Remove\n2.Query\n3.Save\n4.Close", 4);
                         Console.Clear();
                         switch (resl2)
                         {
@@ -88,7 +99,7 @@ namespace Databaser
                                 Console.Clear();
                                 break;
                             case 3:
-                                if (TryToAskQuestion("Insert 0 for Save, 1 for Save as:", 1) == 1)
+                                if (CPExtensionMethods.TryToAskQuestion("Insert 0 for Save, 1 for Save as:", 1) == 1)
                                 {
 
                                     Console.WriteLine("Input a file name to store the database: ");
@@ -129,19 +140,7 @@ namespace Databaser
             }
             #endregion
         }
-        public int TryToAskQuestion(string Q, int maxValue)
-        {
-            Console.WriteLine(Q);
-            int res;
-            string i = Console.ReadLine();
-            while (!Int32.TryParse(i, out res) || res < 0 || res > maxValue)
-            {
-                Console.WriteLine("Incorrect Input. Reprompting");
-                i = Console.ReadLine();
-            }
-            return res;
-
-        }
+        
         public void QueryCopyOfDatabase()
         {
             Database copy = TheDatabase.CopyDatabase();
@@ -149,7 +148,7 @@ namespace Databaser
             #region Level 3
             while (o)
             {
-                int res = TryToAskQuestion("0.Sort\n1.Filter\n2.Display\n3.Save File\n4.Replace Database\n5.Return to Menu", 6);
+                int res = CPExtensionMethods.TryToAskQuestion("0.Sort\n1.Filter\n2.Display\n3.Save File\n4.Replace Database\n5.Return to Menu", 6);
                 Console.Clear();
                 switch (res)
                 {
@@ -159,9 +158,9 @@ namespace Databaser
                         {
                             Console.WriteLine($"{col}.{copy[col].Name}");
                         }
-                        int column = TryToAskQuestion("", copy.Data.Count);
+                        int column = CPExtensionMethods.TryToAskQuestion("", copy.Data.Count);
                         copy.ApplyPattern(copy[column].GenerateSortPattern((SortStyle)
-                            TryToAskQuestion("0.Ascending\n1.Descending", 2)));
+                            CPExtensionMethods.TryToAskQuestion("0.Ascending\n1.Descending", 2)));
                         Console.Clear();
                         #endregion
                         break;
@@ -171,8 +170,8 @@ namespace Databaser
                         {
                             Console.WriteLine($"{col}.{copy[col].Name}");
                         }
-                        int columnfilter = TryToAskQuestion("", copy.Data.Count);
-                        FilterStyle res2 = (FilterStyle)TryToAskQuestion("0.Equal To\n1.Greater Than Or Equal To\n2.Less Than Or Equal To\n3.Greater Than\n4.Less Than\n5 Not Equal To", 5);
+                        int columnfilter = CPExtensionMethods.TryToAskQuestion("", copy.Data.Count);
+                        FilterStyle res2 = (FilterStyle)CPExtensionMethods.TryToAskQuestion("0.Equal To\n1.Greater Than Or Equal To\n2.Less Than Or Equal To\n3.Greater Than\n4.Less Than\n5 Not Equal To", 5);
                         Console.WriteLine("Please insert your comparetor");
                         byte[] input = RequestData(copy[columnfilter].type);
                         copy.ApplyPattern(copy[columnfilter].GenerateFilterPattern(res2, new Record(input, copy[columnfilter].type)));
@@ -182,13 +181,18 @@ namespace Databaser
                     case 2:
                         #region Display
 
+<<<<<<< HEAD
+                        CPExtensionMethods.TryToAskQuestion("How many records would you like to view from the database?", copy.Data[0].Data.Count);
+                        View_Database(copy, int.Parse(Console.ReadLine()));
+=======
 
                         View_Database(copy, TryToAskQuestion($"How many records would you like to view from the database out of {copy.Data[0].Data.Count}?", copy.Data[0].Data.Count));
+>>>>>>> master
                         #endregion
                         break;
                     case 3:
                         #region Save File
-                        if (TryToAskQuestion("Insert 0 for Save, 1 for Save as:", 1) == 1)
+                        if (CPExtensionMethods.TryToAskQuestion("Insert 0 for Save, 1 for Save as:", 1) == 1)
                         {
 
                             Console.WriteLine("Input a file name to store the database: ");
@@ -608,7 +612,7 @@ namespace Databaser
             Console.Clear();
             Console.WriteLine("Welcome to the Record Editor!");
             Console.WriteLine("Please enter the corresponding menu number for the desired type:");
-            int res = TryToAskQuestion("0 - Edit Record\n1 - Add Record\n2 - Delete Record\n3 - Return To Menu", 3);
+            int res = CPExtensionMethods.TryToAskQuestion("0 - Edit Record\n1 - Add Record\n2 - Delete Record\n3 - Return To Menu", 3);
             Console.Clear();
             switch (res)
             {
@@ -617,8 +621,11 @@ namespace Databaser
                     if (TheDatabase.HasARecord)
                     {
                         View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
-                        int rec = TryToAskQuestion("Please insert the ID of the item you want to edit", TheDatabase[0].Data.Count - 1);
-                        switch (TryToAskQuestion("0 - Edit all Record\n1 - Edit a field of Record", 1))
+                        Console.WriteLine("To go back, enter ‘back’");
+                        string GoBack = Console.ReadLine();
+                        if (GoBack == "back") return true;
+                        int rec = CPExtensionMethods.TryToAskQuestion("Please insert the ID of the item you want to edit", TheDatabase[0].Data.Count - 1);
+                        switch (CPExtensionMethods.TryToAskQuestion("0 - Edit all Record\n1 - Edit a field of Record", 1))
                         {
                             case 0:
                                 Console.WriteLine("Please add data for each required value:");
@@ -650,7 +657,7 @@ namespace Databaser
                                 {
                                     Console.WriteLine($"{col} - {TheDatabase[col].Name}");
                                 }
-                                int colToEdit = TryToAskQuestion("Please insert the ID of the column to edit", TheDatabase.Data.Count - 1);
+                                int colToEdit = CPExtensionMethods.TryToAskQuestion("Please insert the ID of the column to edit", TheDatabase.Data.Count - 1);
                                 do
                                 {
                                     Console.Write($"{TheDatabase[colToEdit].Name} of type {TheDatabase[colToEdit].type.TypeName()}:");
@@ -716,7 +723,7 @@ namespace Databaser
                     if (TheDatabase.HasARecord)
                     {
                         View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
-                        TheDatabase.RemoveEntry(TryToAskQuestion("Please insert the ID of the item you want to delete", TheDatabase[0].Data.Count - 1));
+                        TheDatabase.RemoveEntry(CPExtensionMethods.TryToAskQuestion("Please insert the ID of the item you want to delete", TheDatabase[0].Data.Count - 1));
                     }
                     else Console.WriteLine("There are no records to delete");
                     Console.WriteLine("Press any key...");
@@ -733,7 +740,7 @@ namespace Databaser
             Console.Clear();
             Console.WriteLine("Welcome to the Column Editor!");
             Console.WriteLine("Please enter the corresponding menu number for the desired type:");
-            int res = TryToAskQuestion("0 - Edit Column\n1 - Add Column\n2 - Delete Column\n3 - Return To Menu", 3);
+            int res = CPExtensionMethods.TryToAskQuestion("0 - Edit Column\n1 - Add Column\n2 - Delete Column\n3 - Return To Menu", 3);
             switch (res)
             {
                 case 0:
@@ -743,7 +750,7 @@ namespace Databaser
                         {
                             Console.WriteLine($"{col} - {TheDatabase[col].Name}");
                         }
-                        int colToEdit = TryToAskQuestion("Please insert the column ID to edit", TheDatabase.Data.Count - 1);
+                        int colToEdit = CPExtensionMethods.TryToAskQuestion("Please insert the column ID to edit", TheDatabase.Data.Count - 1);
                         Console.Write("Please type the new name: ");
                         TheDatabase[colToEdit].Name = Console.ReadLine();
                         Console.WriteLine("Column Edited");
@@ -768,7 +775,7 @@ namespace Databaser
                         {
                             Console.WriteLine($"{col} - {TheDatabase[col].Name}");
                         }
-                        TheDatabase.Data.RemoveAt(TryToAskQuestion("", TheDatabase.Data.Count - 1));
+                        TheDatabase.Data.RemoveAt(CPExtensionMethods.TryToAskQuestion("", TheDatabase.Data.Count - 1));
                     }
                     else Console.WriteLine("There are no columns to delete");
                     Console.WriteLine("Press any key...");
@@ -996,36 +1003,93 @@ namespace Databaser
         }
         public void Read_csv_IntoDatabase()
         {
+<<<<<<< HEAD
+            string sPath = "";
+            string dec;
+            Console.Clear();
+            int ans = CPExtensionMethods.TryToAskQuestion("Does your csv file have any column names in it? (1 - yes/0 - no)", 1);
+            bool ColNamesInside = (ans == 1) ? true : false;
+            DateTime InitialWait;
+            TimeSpan FewSecs = new TimeSpan(4 * 10000);
+            OpenFileDialog BrowseBox = new OpenFileDialog();
+            BrowseBox.Multiselect = false;
+=======
             string sPath;
+>>>>>>> master
             do
             {
-                Console.WriteLine("Please enter the file path to your csv file (right click on the file and click on properties to find it)");
-                sPath = Console.ReadLine();
-                string csvName = "";
-                if (!sPath.Contains(".csv"))
+                dec = "not no";
+                InitialWait = DateTime.Now;
+                Console.WriteLine("Please choose the .csv file that you would like to import... ");
+                while (DateTime.Now < InitialWait.Add(FewSecs)) {; }
+                if (BrowseBox.ShowDialog() == DialogResult.OK)
+                    sPath = BrowseBox.FileName;
+                else
                 {
-                    Console.WriteLine("Please enter the file's name (if the path you entered contained the file's name, just press enter): ");
-                    csvName = Console.ReadLine();
+                    Console.WriteLine("Would you like to return to the previous menu then?");
+                    dec = Console.ReadLine();
                 }
-                if (!Directory.Exists((sPath = Path.Combine(sPath, csvName))))
-                    Console.Write("Sorry, invalid path. ");
-            } while (!Directory.Exists(sPath));
-            //sPath has now been validated and established to exist
+            } while (dec == "no");
+            if (dec == "yes")
+                return;
             string[] Lines = File.ReadAllLines(sPath);
-            string[,] Everything = new string[Lines[0].Split(',').Length, Lines.Length];
-            for (int i = 0; i < Lines.Length; i++)//for every line
+            string[,] AllDataOnly = new string[Lines[0].Split(',').Length, Lines.Length - ((ColNamesInside) ? 1 : 0)];
+            for (int i = (ColNamesInside) ? 1 : 0; i < Lines.Length; i++)//for every line
             {
                 for (int j = 0; j < Lines[i].Split(',').Length; j++)//for every record in the line
                 {
                     //add it to everything
-                    Everything[j, i] = Lines[i].Split(',')[j];
+                    AllDataOnly[j, i] = Lines[i].Split(',')[j];
                 }
             }
-            //Everything - ready
+            //AllDataOnly - ready
             for (int i = 0; i < Lines[0].Split(',').Length; i++)
-                Data.Add(new Column("", CPExtensionMethods.FindTypeOfColumn(Everything, i, Lines.Length)));
+                Data.Add(new Column("", CPExtensionMethods.FindTypeOfColumn(AllDataOnly, i, Lines.Length)));
             //Column types assigned
+<<<<<<< HEAD
+            for (int cols = 0; cols < Lines[0].Split(',').Length; cols++)//for every column
+            {
+                for (int recs = 0; recs < Lines.Length; recs++)//add all records to List<Record> in current column
+                {
+                    Data[cols].Data.Add(new Record(Converter.StringToByte(AllDataOnly[cols, recs], Data[cols].type), Data[cols].type));
+                }
+            }
 
+            //Get names of columns
+            if (!ColNamesInside)
+            {
+                Console.WriteLine("Please enter the column names: ");
+                for (int names = 0; names < Data.Count; names++)
+                {
+                    Console.WriteLine("Here is the column: \n");
+                    for (int rec = 0; rec < Data[names].Data.Count; rec++)
+                        Console.WriteLine(Converter.ByteToString(Data[names].Data[rec].Data, Data[names].type));
+                    Console.WriteLine("\nEnter the name that you would like for this column: ");
+                    Data[names].Name = Console.ReadLine();
+                }
+            }
+            else
+            {
+                for (int index = 0; index < Data.Count; index++)
+                    Data[index].Name = Lines[0].Split(',')[index];
+            }
+            Console.Clear();
+            Console.WriteLine("And finally, what would you like to name this new database?");
+            FileName = Console.ReadLine();
+            Console.WriteLine("Enter a name under which the file will be stored..");
+            FileName = Console.ReadLine();
+            while (Directory.Exists(Path.Combine(FolderPath, FileName)))
+            {
+                Console.WriteLine("\nSorry, another database is already stored under this file name, please enter another suitable one");
+                FileName = Console.ReadLine();
+            }
+            Console.Clear();
+            SaveDatabase();
+            Console.Write("And that’s it! All done, the database has now been saved in the JAK format and can now be accessed from JAK Database whenever you like!");
+            return;
+=======
+
+>>>>>>> master
         }
         public void SaveDatabase()
         {
@@ -1428,51 +1492,72 @@ namespace Databaser
             b.CopyTo(output, 0);
             output[b.Length] = b2;
             return output;
-        }/// <summary>
-         /// Returns the type of a column in Table. The column is specified by the zero-based value of ColumnNumber
-         /// </summary>
-         /// <param name=""></param>
-         /// <param name="ColumnNumber"></param>
-         /// <returns></returns>
+        }
+        public static int TryToAskQuestion(string Q, int maxValue)
+        {
+            Console.WriteLine(Q);
+            int res;
+            string i = Console.ReadLine();
+            while (!Int32.TryParse(i, out res) || res < 0 || res > maxValue)
+            {
+                Console.WriteLine("Incorrect Input. Reprompting");
+                i = Console.ReadLine();
+            }
+            return res;
+
+        }
+        /// <summary>
+        /// Returns the most suitable type of a column of text in Table. The column is specified by the zero-based value of ColumnNumber
+        /// </summary>
+        /// <param name=""></param>
+        /// <param name="ColumnNumber"></param>
+        /// <returns></returns>
         public static Type FindTypeOfColumn(string[,] Table, int ColumnNumber, int NumOfRecords)
         {
             string[] ColSpecified = new string[NumOfRecords];
             for (int i = 0; i < NumOfRecords; i++)
                 ColSpecified[i] = Table[ColumnNumber, i];
-            int highL = 0;
-            for (int i = 1; i < ColSpecified.Length; i++)
-                if (ColSpecified[i].Length >= highL) highL = i;
             try
             {
-                DateTime DT = Convert.ToDateTime(ColSpecified[highL]);
+                DateTime DT;
+                for (int i = 0; i < ColSpecified.Length; i++)
+                    DT = Convert.ToDateTime(ColSpecified[i]);
                 return typeof(DateTime);
             }
             catch
             {
                 try
                 {
-                    UInt64 UI = Convert.ToUInt64(ColSpecified[highL]);
+                    UInt64 UI;
+                    for (int i = 0; i < ColSpecified.Length; i++)
+                        UI = Convert.ToUInt64(ColSpecified[i]);
                     return typeof(UInt64);
                 }
                 catch
                 {
                     try
                     {
-                        Int64 I = Convert.ToInt64(ColSpecified[highL]);
+                        Int64 I;
+                        for (int i = 0; i < ColSpecified.Length; i++)
+                            I = Convert.ToInt64(ColSpecified[i]);
                         return typeof(Int64);
                     }
                     catch
                     {
                         try
                         {
-                            double D = Convert.ToDouble(ColSpecified[highL]);
+                            double D;
+                            for (int i = 0; i < ColSpecified.Length; i++)
+                                D = Convert.ToDouble(ColSpecified[i]);
                             return typeof(Double);
                         }
                         catch
                         {
                             try
                             {
-                                char c = Convert.ToChar(ColSpecified[highL]);
+                                char c;
+                                for (int i = 0; i < ColSpecified.Length; i++)
+                                    c = Convert.ToChar(ColSpecified[i]);
                                 return typeof(char);
                             }
                             catch
