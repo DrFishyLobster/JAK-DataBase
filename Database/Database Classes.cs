@@ -129,7 +129,7 @@ namespace Databaser
             }
             #endregion
         }
-        public int TryToAskQuestion(string Q, int maxValue)
+        private int TryToAskQuestion(string Q, int maxValue)
         {
             Console.WriteLine(Q);
             int res;
@@ -142,7 +142,7 @@ namespace Databaser
             return res;
 
         }
-        public void QueryCopyOfDatabase()
+        private void QueryCopyOfDatabase()
         {
             Database copy = TheDatabase.CopyDatabase();
             bool o = true;
@@ -248,7 +248,7 @@ namespace Databaser
         /// </summary>
         /// <param name="ColNum"></param>
         /// <returns></returns>
-        public int LengthOfLongestRecord(int ColNum, Database DB)
+        private int LengthOfLongestRecord(int ColNum, Database DB)
         {
             List<Record> Records = DB.Data[ColNum].Data;
             int high = Converter.ByteToString(Records[0].Data, DB.Data[ColNum].type).Length;
@@ -257,7 +257,7 @@ namespace Databaser
                     high = Converter.ByteToString(Records[i].Data, DB.Data[ColNum].type).Length;
             return high;
         }
-        public void View_Database(Database DB_ToView, int NumberOfRecordsToDisplay)
+        private void View_Database(Database DB_ToView, int NumberOfRecordsToDisplay)
         {
             if (NumberOfRecordsToDisplay > DB_ToView.Data[0].Data.Count /*Number of records in database*/)
             {
@@ -328,7 +328,7 @@ namespace Databaser
             Console.ReadKey();
             Console.Clear();
         }
-        public Database Load_Database()
+        private Database Load_Database()
         {
             string[] DbPaths = AvailblDbPaths();
             if (DbPaths.Length == 0)
@@ -371,7 +371,7 @@ namespace Databaser
             }
             return database.FileName;
         }
-        public void Create_Column()
+        private void Create_Column()
         {
             string HappyWithCreation = "";
             string iName;
@@ -511,7 +511,7 @@ namespace Databaser
                     return "general";//was thinking we could have a construct which allows a general field which can store many things at once... dont really know the use of it but i have to enter something in the default case otherwise all paths wouldn’t return a value
             }
         }
-        public Database AskNewDatabase()
+        private Database AskNewDatabase()
         {
             Database newDatabase = new Database();
 
@@ -575,7 +575,7 @@ namespace Databaser
             return newDatabase;
         }
 
-        public void MasterEditor()
+        private void MasterEditor()
         {
             Console.WriteLine(@"Please enter the corresponding menu number for the desired type:
     0 - Edit Records
@@ -603,7 +603,7 @@ namespace Databaser
             while (response != "0" && response != "1" && response != "2");
 
         }
-        public bool RecordEditor()
+        private bool RecordEditor()
         {
             Console.Clear();
             Console.WriteLine("Welcome to the Record Editor!");
@@ -728,7 +728,7 @@ namespace Databaser
             }
             return false;
         }
-        public bool ColumnEditor()
+        private bool ColumnEditor()
         {
             Console.Clear();
             Console.WriteLine("Welcome to the Column Editor!");
