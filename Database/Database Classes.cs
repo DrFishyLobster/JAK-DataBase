@@ -44,7 +44,10 @@ namespace Databaser
                     case 2:
                         try
                         {
-                            if (TheDatabase.Read_csv_IntoDatabase()) { Console.Clear(); View_Database(TheDatabase, TheDatabase.Data[0].Data.Count); }
+                            if (TheDatabase.Read_csv_IntoDatabase()) { Console.Clear(); View_Database(TheDatabase, TheDatabase.Data[0].Data.Count); Console.WriteLine("Press any key to continue...");
+                                Console.ReadKey();
+                                Console.Clear();
+                            }
                             else { Console.Clear(); continue; }
                         }
                         catch (Exception)
@@ -86,7 +89,10 @@ namespace Databaser
                                     break;
                                 }
                                 View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
+                                Console.WriteLine("Press any key to continue...");
+                                Console.ReadKey();
                                 Console.Clear();
+                                
                                 break;
                             case 1:
                                 MasterEditor();
@@ -190,6 +196,9 @@ namespace Databaser
                     case 2:
                         #region Display
                         View_Database(copy, CPExtensionMethods.TryToAskQuestion($"How many records would you like to view from the database out of {copy.Data[0].Data.Count}?", copy.Data[0].Data.Count));
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadKey();
+                        Console.Clear();
                         #endregion
                         break;
                     case 3:
@@ -330,9 +339,7 @@ namespace Databaser
                 }
             }
             Console.ResetColor();
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
-            Console.Clear();
+            
         }
         private Database Load_Database()
         {
