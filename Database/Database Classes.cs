@@ -26,6 +26,7 @@ namespace Databaser
             #region Level 1
             while (o)
             {
+                TheDatabase = new Database();
                 Console.WriteLine("Hello and welcome to JAK Database! Pick one of the following to begin...:");//intro
                 int res = CPExtensionMethods.TryToAskQuestion("0.Load Database\n1.New Database\n2.Import Database From .csv File\n3.Close", 3);
                 Console.Clear();
@@ -37,19 +38,25 @@ namespace Databaser
                         if (TheDatabase == null) bts = true;
                         break;
                     case 1:
-<<<<<<< HEAD
-                        int dec = CPExtensionMethods.TryToAskQuestion("Would you like to create a new database from an existing csv file or through our quick entry system? (1 for csv file/0 for quick entry)", 1);
+                        //int dec = CPExtensionMethods.TryToAskQuestion("Would you like to create a new database from an existing csv file or through our quick entry system? (1 for csv file/0 for quick entry)", 1);
                         TheDatabase = AskNewDatabase();
-=======
-                        int dec = TryToAskQuestion("Would you like to create a new database from an existing csv file or through our quick entry system? (1 for csv file/0 for quick entry)", 1);
-                        if (dec == 0) TheDatabase = AskNewDatabase();
-                        //else //GetNewFromFile
->>>>>>> master
                         break;
                     case 2:
-                        TheDatabase.Read_csv_IntoDatabase();
-                        Console.Clear();
-                        View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
+                        try
+                        {
+                            if (TheDatabase.Read_csv_IntoDatabase()) { Console.Clear(); View_Database(TheDatabase, TheDatabase.Data[0].Data.Count); }
+                            else { Console.Clear(); continue; }
+                        }
+                        catch (Exception)
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Unable to Import due to wrong formating or other issues");
+                            Console.WriteLine("Press any key to continue...");
+                            Console.ReadKey();
+                            Console.Clear();
+                            continue;
+                        }
+                        
                         break;
                     case 3:
                         o = false;
@@ -93,10 +100,11 @@ namespace Databaser
                                 else
                                 {
                                     Console.WriteLine("No columns have been added to this database yet, so there is nothing to view.\nPick another option");
+
+                                    Console.WriteLine("Press any key...");
+                                    Console.ReadKey();
+                                    Console.Clear();
                                 }
-                                Console.WriteLine("Press any key...");
-                                Console.ReadKey();
-                                Console.Clear();
                                 break;
                             case 3:
                                 if (CPExtensionMethods.TryToAskQuestion("Insert 0 for Save, 1 for Save as:", 1) == 1)
@@ -140,25 +148,9 @@ namespace Databaser
             }
             #endregion
         }
-<<<<<<< HEAD
-        private int TryToAskQuestion(string Q, int maxValue)
-        {
-            Console.WriteLine(Q);
-            int res;
-            string i = Console.ReadLine();
-            while (!Int32.TryParse(i, out res) || res < 0 || res > maxValue)
-            {
-                Console.WriteLine("Incorrect Input. Reprompting");
-                i = Console.ReadLine();
-            }
-            return res;
-
-        }
-        private void QueryCopyOfDatabase()
-=======
         
-        public void QueryCopyOfDatabase()
->>>>>>> 39639c4659802c67c09d8a2172466385ffab225a
+        private void QueryCopyOfDatabase()
+
         {
             Database copy = TheDatabase.CopyDatabase();
             bool o = true;
@@ -197,14 +189,7 @@ namespace Databaser
                         break;
                     case 2:
                         #region Display
-
-<<<<<<< HEAD
-                        CPExtensionMethods.TryToAskQuestion("How many records would you like to view from the database?", copy.Data[0].Data.Count);
-                        View_Database(copy, int.Parse(Console.ReadLine()));
-=======
-
-                        View_Database(copy, TryToAskQuestion($"How many records would you like to view from the database out of {copy.Data[0].Data.Count}?", copy.Data[0].Data.Count));
->>>>>>> master
+                        View_Database(copy, CPExtensionMethods.TryToAskQuestion($"How many records would you like to view from the database out of {copy.Data[0].Data.Count}?", copy.Data[0].Data.Count));
                         #endregion
                         break;
                     case 3:
@@ -1018,9 +1003,9 @@ namespace Databaser
             binaryReader.Close();
             return database;
         }
-        public void Read_csv_IntoDatabase()
+        public bool Read_csv_IntoDatabase()
         {
-<<<<<<< HEAD
+            
             string sPath = "";
             string dec;
             Console.Clear();
@@ -1030,9 +1015,6 @@ namespace Databaser
             TimeSpan FewSecs = new TimeSpan(4 * 10000);
             OpenFileDialog BrowseBox = new OpenFileDialog();
             BrowseBox.Multiselect = false;
-=======
-            string sPath;
->>>>>>> master
             do
             {
                 dec = "not no";
@@ -1043,12 +1025,11 @@ namespace Databaser
                     sPath = BrowseBox.FileName;
                 else
                 {
-                    Console.WriteLine("Would you like to return to the previous menu then?");
-                    dec = Console.ReadLine();
+                    dec = CPExtensionMethods.TryToAskQuestion("Would you like to return to the main menu (1 - yes/0 - no)", 1).ToString();
                 }
-            } while (dec == "no");
-            if (dec == "yes")
-                return;
+            } while (dec == "0");
+            if (dec == "1")
+                return false;
             string[] Lines = File.ReadAllLines(sPath);
             string[,] AllDataOnly = new string[Lines[0].Split(',').Length, Lines.Length - ((ColNamesInside) ? 1 : 0)];
             for (int i = (ColNamesInside) ? 1 : 0; i < Lines.Length; i++)//for every line
@@ -1063,7 +1044,6 @@ namespace Databaser
             for (int i = 0; i < Lines[0].Split(',').Length; i++)
                 Data.Add(new Column("", CPExtensionMethods.FindTypeOfColumn(AllDataOnly, i, Lines.Length)));
             //Column types assigned
-<<<<<<< HEAD
             for (int cols = 0; cols < Lines[0].Split(',').Length; cols++)//for every column
             {
                 for (int recs = 0; recs < Lines.Length; recs++)//add all records to List<Record> in current column
@@ -1103,10 +1083,7 @@ namespace Databaser
             Console.Clear();
             SaveDatabase();
             Console.Write("And that’s it! All done, the database has now been saved in the JAK format and can now be accessed from JAK Database whenever you like!");
-            return;
-=======
-
->>>>>>> master
+            return true;
         }
         public void SaveDatabase()
         {
@@ -1514,7 +1491,7 @@ namespace Databaser
         {
             Console.WriteLine(Q);
             int res;
-            string i = Console.ReadLine();
+           string i = Console.ReadLine();
             while (!Int32.TryParse(i, out res) || res < 0 || res > maxValue)
             {
                 Console.WriteLine("Incorrect Input. Reprompting");
