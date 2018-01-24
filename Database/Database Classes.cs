@@ -38,6 +38,7 @@ namespace Databaser
                     case 1:
                         int dec = TryToAskQuestion("Would you like to create a new database from an existing csv file or through our quick entry system? (1 for csv file/0 for quick entry)", 1);
                         if (dec == 0) TheDatabase = AskNewDatabase();
+<<<<<<< HEAD
                         else
                         {
                             TheDatabase.Read_csv_IntoDatabase();
@@ -45,6 +46,9 @@ namespace Databaser
                             Console.WriteLine("\nHere is the final database. If you aren’t happy with how it looks, pick the edit option in the next menu. Press any key to continue...");
                             Console.ReadKey();
                         }
+=======
+                        //else //GetNewFromFile
+>>>>>>> master
                         break;
                     case 2:
                         o = false;
