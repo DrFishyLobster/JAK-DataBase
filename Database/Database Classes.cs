@@ -173,8 +173,8 @@ namespace Databaser
                     case 2:
                         #region Display
 
-                        TryToAskQuestion("How many records would you like to view from the database?", copy.Data[0].Data.Count);
-                        View_Database(copy, int.Parse(Console.ReadLine()));
+
+                        View_Database(copy, TryToAskQuestion("How many records would you like to view from the database?", copy.Data[0].Data.Count));
                         #endregion
                         break;
                     case 3:
@@ -264,12 +264,30 @@ namespace Databaser
                 Console.BackgroundColor = ConsoleColor.DarkRed;
                 Console.ForegroundColor = ConsoleColor.White;
                 List<string> ColumnHeadings = DB_ToView.sColumnHeadings();
-                Console.Write("ID\t");
+                #region Column Width
+                List<int> width = new List<int>();
+                int maxwidth = 2;
+                maxwidth = 2 >= DB_ToView.Data.Count.ToString().Length ? 2 : DB_ToView.Data.Count.ToString().Length;
+                width.Add(maxwidth);
+                for (int col = 0; col < NumberOfRecordsToDisplay; col++)
+                {
+                    maxwidth = DB_ToView[col].Name.Length;
+                    foreach (var item in DB_ToView[col].Data)
+                    {
+                        if (maxwidth < Converter.ByteToString(item.Data, item.type).Length)
+                            maxwidth = Converter.ByteToString(item.Data, item.type).Length;
+                    }
+                    width.Add(maxwidth);
+                }
+
+
+                #endregion
+                string nameToPrint = "ID" + " ".Times(width[0] - 2) + "|";
+                Console.Write(nameToPrint);
                 for (int r = 0; r < ColumnHeadings.Count; r++)
                 {
-                    Console.Write(ColumnHeadings[r]);
-                    for (int j = 0; j < LengthOfLongestRecord(r, DB_ToView) - ColumnHeadings[r].Length + 1; j++)
-                        Console.Write(" ");
+                    Console.Write(ColumnHeadings[r] + " ".Times(width[r + 1] - ColumnHeadings[r].Length) + "|");
+
                 }
                 Console.ResetColor();
 
@@ -280,16 +298,16 @@ namespace Databaser
                 {
                     //display current record
 
-                    List<string> RecordElements = DB_ToView.sRecord(RecordNum);
+
                     Console.BackgroundColor = ConsoleColor.Gray;
                     Console.ForegroundColor = ConsoleColor.Black;
-                    Console.Write(RecordNum + "\t");
-                    for (int i = 0; i < RecordElements.Count; i++)
+                    Console.Write(RecordNum + " ".Times(width[0] - RecordNum.ToString().Length) + "|");
+                    for (int r = 0; r < ColumnHeadings.Count; r++)
                     {
-                        Console.Write(RecordElements[i] + "\t");
-                    }
-                    Console.ResetColor();
+                        Console.Write(Converter.ByteToString(DB_ToView[r][RecordNum].Data, DB_ToView[r][RecordNum].type)
+                            + " ".Times(width[r + 1] - Converter.ByteToString(DB_ToView[r][RecordNum].Data, DB_ToView[r][RecordNum].type).Length) + "|");
 
+                    }
                     //LEAVE THIS ALONE!!!!
                     Console.WriteLine();
                 }
@@ -947,7 +965,7 @@ namespace Databaser
             for (int i = 0; i < Lines[0].Split(',').Length; i++)
                 Data.Add(new Column("", CPExtensionMethods.FindTypeOfColumn(Everything, i, Lines.Length)));
             //Column types assigned
-            
+
 
         }
         public void SaveDatabase()
@@ -1335,6 +1353,16 @@ namespace Databaser
 
     public static class CPExtensionMethods
     {
+        public static string Times(this string x, int times)
+        {
+            string e = "";
+            for (int l = 0; l < times; l++)
+            {
+                e += x;
+            }
+            return e;
+
+        }
         public static byte[] Add(this byte[] b, byte b2)
         {
             byte[] output = new byte[b.Length + 1];
