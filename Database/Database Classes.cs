@@ -38,7 +38,17 @@ namespace Databaser
                     case 1:
                         int dec = TryToAskQuestion("Would you like to create a new database from an existing csv file or through our quick entry system? (1 for csv file/0 for quick entry)", 1);
                         if (dec == 0) TheDatabase = AskNewDatabase();
+<<<<<<< HEAD
+                        else
+                        {
+                            TheDatabase.Read_csv_IntoDatabase();
+                            View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
+                            Console.WriteLine("\nHere is the final database. If you aren’t happy with how it looks, pick the edit option in the next menu. Press any key to continue...");
+                            Console.ReadKey();
+                        }
+=======
                         //else //GetNewFromFile
+>>>>>>> master
                         break;
                     case 2:
                         o = false;
@@ -919,6 +929,10 @@ namespace Databaser
         public void Read_csv_IntoDatabase()
         {
             string sPath;
+            Console.Clear();
+            Console.WriteLine("Before, entering the path to your csv, make sure that it does NOT contain the column names or record names. You can do this by opening it up in a software like excel and deleting the column and record names.");
+            Console.WriteLine("Press any key to continue");
+            Console.ReadKey();
             do
             {
                 Console.WriteLine("Please enter the file path to your csv file (right click on the file and click on properties to find it)");
@@ -947,8 +961,25 @@ namespace Databaser
             for (int i = 0; i < Lines[0].Split(',').Length; i++)
                 Data.Add(new Column("", CPExtensionMethods.FindTypeOfColumn(Everything, i, Lines.Length)));
             //Column types assigned
-            
+            for (int cols = 0; cols < Lines[0].Split(',').Length; cols++)//for every column
+            {
+                for (int recs = 0; recs < Lines.Length; recs++)//add all records to List<Record> in current column
+                {
+                    Data[cols].Data.Add(new Record(Converter.StringToByte(Everything[cols, recs], Data[cols].type), Data[cols].type));
+                }
+            }
 
+            //Get names of columns
+            Console.WriteLine("Please enter the column names: ");
+            for (int names = 0; names < Data.Count; names++)
+            {
+                Console.WriteLine("Here is the column: \n");
+                for (int rec = 0; rec < Data[names].Data.Count; rec++)
+                    Console.WriteLine(Converter.ByteToString(Data[names].Data[rec].Data, Data[names].type));
+                Console.WriteLine("\nEnter the name that you would like for this column: ");
+                Data[names].Name = Console.ReadLine();
+            }
+            return;
         }
         public void SaveDatabase()
         {
