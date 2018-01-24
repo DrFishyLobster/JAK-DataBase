@@ -27,7 +27,7 @@ namespace Databaser
             while (o)
             {
                 Console.WriteLine("Hello and welcome to JAK Database! Pick one of the following to begin...:");//intro
-                int res = CPExtensionMethods.TryToAskQuestion("0.Load Database\n1.New Database\n2.Import Database From .csv File\n3.Close", 2);
+                int res = CPExtensionMethods.TryToAskQuestion("0.Load Database\n1.New Database\n2.Import Database From .csv File\n3.Close", 3);
                 Console.Clear();
                 switch (res)
                 {
@@ -44,8 +44,6 @@ namespace Databaser
                         TheDatabase.Read_csv_IntoDatabase();
                         Console.Clear();
                         View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
-                        Console.WriteLine("Press any key to continue");
-                        Console.ReadKey();
                         break;
                     case 3:
                         o = false;
@@ -53,7 +51,7 @@ namespace Databaser
 
                 }
                 if (bts) { bts = false; continue; }
-                if (res == 0 || res == 1)
+                if (res == 0 || res == 1 || res == 2)
                 {
                     Console.Clear();
                     bool o2 = true;
@@ -534,6 +532,9 @@ namespace Databaser
                     if (TheDatabase.HasARecord)
                     {
                         View_Database(TheDatabase, TheDatabase.Data[0].Data.Count);
+                        Console.WriteLine("To go back, enter ‘back’");
+                        string GoBack = Console.ReadLine();
+                        if (GoBack == "back") return true;
                         int rec = CPExtensionMethods.TryToAskQuestion("Please insert the ID of the item you want to edit", TheDatabase[0].Data.Count - 1);
                         switch (CPExtensionMethods.TryToAskQuestion("0 - Edit all Record\n1 - Edit a field of Record", 1))
                         {
@@ -918,35 +919,26 @@ namespace Databaser
             Console.Clear();
             int ans = CPExtensionMethods.TryToAskQuestion("Does your csv file have any column names in it? (1 - yes/0 - no)", 1);
             bool ColNamesInside = (ans == 1) ? true : false;
+            DateTime InitialWait;
+            TimeSpan FewSecs = new TimeSpan(4 * 10000);
             OpenFileDialog BrowseBox = new OpenFileDialog();
+            BrowseBox.Multiselect = false;
             do
             {
+                dec = "not no";
+                InitialWait = DateTime.Now;
+                Console.WriteLine("Please choose the .csv file that you would like to import... ");
+                while (DateTime.Now < InitialWait.Add(FewSecs)) {; }
                 if (BrowseBox.ShowDialog() == DialogResult.OK)
-                {
                     sPath = BrowseBox.FileName;
-                }
                 else
                 {
                     Console.WriteLine("Would you like to return to the previous menu then?");
+                    dec = Console.ReadLine();
                 }
-            } while ((dec = Console.ReadLine()) == "no");
+            } while (dec == "no");
             if (dec == "yes")
                 return;
-            /*
-            do
-            {
-                Console.WriteLine("Please enter the file path to your csv file (right click on the file and click on ‘properties’ -> ‘details’ to find it)");
-                sPath = Console.ReadLine();
-                string csvName = "";
-                if (!sPath.Contains(".csv"))
-                {
-                    Console.WriteLine("Please enter the file's name (if the path you entered contained the file's name, just press enter): ");
-                    csvName = Console.ReadLine();
-                }
-                if (!Directory.Exists((sPath = Path.Combine(sPath, csvName))))
-                    Console.Write("Sorry, invalid path. ");
-            } while (!Directory.Exists(sPath)); */
-            //sPath has now been validated and established to exist
             string[] Lines = File.ReadAllLines(sPath);
             string[,] AllDataOnly = new string[Lines[0].Split(',').Length, Lines.Length - ((ColNamesInside) ? 1 : 0)];
             for (int i = (ColNamesInside) ? 1 : 0; i < Lines.Length; i++)//for every line
@@ -987,6 +979,19 @@ namespace Databaser
                 for (int index = 0; index < Data.Count; index++)
                     Data[index].Name = Lines[0].Split(',')[index];
             }
+            Console.Clear();
+            Console.WriteLine("And finally, what would you like to name this new database?");
+            FileName = Console.ReadLine();
+            Console.WriteLine("Enter a name under which the file will be stored..");
+            FileName = Console.ReadLine();
+            while (Directory.Exists(Path.Combine(FolderPath, FileName)))
+            {
+                Console.WriteLine("\nSorry, another database is already stored under this file name, please enter another suitable one");
+                FileName = Console.ReadLine();
+            }
+            Console.Clear();
+            SaveDatabase();
+            Console.Write("And that’s it! All done, the database has now been saved in the JAK format and can now be accessed from JAK Database whenever you like!");
             return;
         }
         public void SaveDatabase()
