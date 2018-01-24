@@ -1037,16 +1037,16 @@ namespace Databaser
                 for (int j = 0; j < Lines[i].Split(',').Length; j++)//for every record in the line
                 {
                     //add it to everything
-                    AllDataOnly[j, i] = Lines[i].Split(',')[j];
+                    AllDataOnly[j, i- ((ColNamesInside) ? 1 : 0)] = Lines[i].Split(',')[j];
                 }
             }
             //AllDataOnly - ready
             for (int i = 0; i < Lines[0].Split(',').Length; i++)
-                Data.Add(new Column("", CPExtensionMethods.FindTypeOfColumn(AllDataOnly, i, Lines.Length)));
+                Data.Add(new Column(ColNamesInside ? Lines[0].Split(',')[i]: "", CPExtensionMethods.FindTypeOfColumn(AllDataOnly, i, Lines.Length - ((ColNamesInside) ? 1 : 0))));
             //Column types assigned
             for (int cols = 0; cols < Lines[0].Split(',').Length; cols++)//for every column
             {
-                for (int recs = 0; recs < Lines.Length; recs++)//add all records to List<Record> in current column
+                for (int recs = 1; recs < Lines.Length; recs++)//add all records to List<Record> in current column
                 {
                     Data[cols].Data.Add(new Record(Converter.StringToByte(AllDataOnly[cols, recs], Data[cols].type), Data[cols].type));
                 }
