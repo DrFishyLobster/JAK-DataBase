@@ -38,7 +38,7 @@ namespace Databaser
                     case 1:
                         int dec = TryToAskQuestion("Would you like to create a new database from an existing csv file or through our quick entry system? (1 for csv file/0 for quick entry)", 1);
                         if (dec == 0) TheDatabase = AskNewDatabase();
-                        else //GetNewFromFile
+                        //else //GetNewFromFile
                         break;
                     case 2:
                         o = false;
