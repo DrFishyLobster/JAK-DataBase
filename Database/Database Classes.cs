@@ -1046,7 +1046,7 @@ namespace Databaser
             //Column types assigned
             for (int cols = 0; cols < Lines[0].Split(',').Length; cols++)//for every column
             {
-                for (int recs = 1; recs < Lines.Length; recs++)//add all records to List<Record> in current column
+                for (int recs = 0; recs < Lines.Length- ((ColNamesInside) ? 1 : 0); recs++)//add all records to List<Record> in current column
                 {
                     Data[cols].Data.Add(new Record(Converter.StringToByte(AllDataOnly[cols, recs], Data[cols].type), Data[cols].type));
                 }
@@ -1074,11 +1074,14 @@ namespace Databaser
             Console.WriteLine("And finally, what would you like to name this new database?");
             FileName = Console.ReadLine();
             Console.WriteLine("Enter a name under which the file will be stored..");
-            FileName = Console.ReadLine();
-            while (Directory.Exists(Path.Combine(FolderPath, FileName)))
+            FilePath = Console.ReadLine();
+            if (!FilePath.Contains(".bin")) FilePath += ".bin";
+            FilePath = FolderPath + "\\" + FilePath;
+            while (Directory.Exists(FilePath))
             {
                 Console.WriteLine("\nSorry, another database is already stored under this file name, please enter another suitable one");
-                FileName = Console.ReadLine();
+                FilePath = Console.ReadLine();
+                FilePath = FolderPath + "\\" + FilePath;
             }
             Console.Clear();
             SaveDatabase();
