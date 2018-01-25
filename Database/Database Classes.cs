@@ -44,7 +44,9 @@ namespace Databaser
                     case 2:
                         try
                         {
-                            if (TheDatabase.Read_csv_IntoDatabase()) { Console.Clear(); View_Database(TheDatabase, TheDatabase.Data[0].Data.Count); Console.WriteLine("Press any key to continue...");
+                            if (TheDatabase.Read_csv_IntoDatabase())
+                            {
+                                Console.Clear(); View_Database(TheDatabase, TheDatabase.Data[0].Data.Count); Console.WriteLine("Press any key to continue...");
                                 Console.ReadKey();
                                 Console.Clear();
                             }
@@ -59,7 +61,7 @@ namespace Databaser
                             Console.Clear();
                             continue;
                         }
-                        
+
                         break;
                     case 3:
                         o = false;
@@ -92,7 +94,7 @@ namespace Databaser
                                 Console.WriteLine("Press any key to continue...");
                                 Console.ReadKey();
                                 Console.Clear();
-                                
+
                                 break;
                             case 1:
                                 MasterEditor();
@@ -154,7 +156,7 @@ namespace Databaser
             }
             #endregion
         }
-        
+
         private void QueryCopyOfDatabase()
 
         {
@@ -339,7 +341,7 @@ namespace Databaser
                 }
             }
             Console.ResetColor();
-            
+
         }
         private Database Load_Database()
         {
@@ -828,7 +830,7 @@ namespace Databaser
             if (type.Equals(typeof(string)))
             {
                 UTF8Encoding encoder = new UTF8Encoding();
-                return encoder.GetString(Data, 0, Data.Length - 1).CompareTo(encoder.GetString(other.Data, 0, other.Data.Length - 1));
+                return encoder.GetString(Data, 0, Data.Length - 1).ToLower().CompareTo(encoder.GetString(other.Data, 0, other.Data.Length - 1).ToLower());
             }
             else if (type.Equals(typeof(byte)))
             {
@@ -1012,7 +1014,7 @@ namespace Databaser
         }
         public bool Read_csv_IntoDatabase()
         {
-            
+
             string sPath = "";
             string dec;
             Console.Clear();
@@ -1044,16 +1046,16 @@ namespace Databaser
                 for (int j = 0; j < Lines[i].Split(',').Length; j++)//for every record in the line
                 {
                     //add it to everything
-                    AllDataOnly[j, i- ((ColNamesInside) ? 1 : 0)] = Lines[i].Split(',')[j];
+                    AllDataOnly[j, i - ((ColNamesInside) ? 1 : 0)] = Lines[i].Split(',')[j];
                 }
             }
             //AllDataOnly - ready
             for (int i = 0; i < Lines[0].Split(',').Length; i++)
-                Data.Add(new Column(ColNamesInside ? Lines[0].Split(',')[i]: "", CPExtensionMethods.FindTypeOfColumn(AllDataOnly, i, Lines.Length - ((ColNamesInside) ? 1 : 0))));
+                Data.Add(new Column(ColNamesInside ? Lines[0].Split(',')[i] : "", CPExtensionMethods.FindTypeOfColumn(AllDataOnly, i, Lines.Length - ((ColNamesInside) ? 1 : 0))));
             //Column types assigned
             for (int cols = 0; cols < Lines[0].Split(',').Length; cols++)//for every column
             {
-                for (int recs = 0; recs < Lines.Length- ((ColNamesInside) ? 1 : 0); recs++)//add all records to List<Record> in current column
+                for (int recs = 0; recs < Lines.Length - ((ColNamesInside) ? 1 : 0); recs++)//add all records to List<Record> in current column
                 {
                     Data[cols].Data.Add(new Record(Converter.StringToByte(AllDataOnly[cols, recs], Data[cols].type), Data[cols].type));
                 }
@@ -1501,7 +1503,7 @@ namespace Databaser
         {
             Console.WriteLine(Q);
             int res;
-           string i = Console.ReadLine();
+            string i = Console.ReadLine();
             while (!Int32.TryParse(i, out res) || res < 0 || res > maxValue)
             {
                 Console.WriteLine("Incorrect Input. Reprompting");
